@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Penguin\Documents\git\raytracing\CMakeFiles\81ce5b45ddcbf4df0bad6c0a47564ebf\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{A34A2CE1-3040-35C1-8373-E5E7F0B55F5D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
