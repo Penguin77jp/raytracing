@@ -30,7 +30,7 @@ png::Renderer::Renderer() {
 //  scene.list.push_back(Triangle{ vec3{+1.5f,-2.0f,+1.5f},vec3{+1.5f,-2.0f,+0.0f},vec3{-1.0f,-2.0f,+0.0f},
 //vec3{0.3f,1.0f,0.3f},vec3{} });
   scene.list.push_back(Box{ vec3{+1.5f,+0.0f,+0.0f},vec3{1.0f,0.3f,0.3f},vec3{} });
-  scene.list.push_back(Box{ vec3{-1.5f,+0.0f,+0.0f},vec3{0.3f,1.0f,0.3f},vec3{} });
+  scene.list.push_back(Box{ vec3{-2.5f,+0.0f,+0.0f},vec3{0.3f,1.0f,0.3f},vec3{}, 2.0f });
   scene.list.push_back(Box{ vec3{-0.0f,+3.0f,+0.0f},vec3{1.0f,1.0f,1.0f},vec3{2.0f,2.0f,2.0f} });
 
   //box
@@ -113,9 +113,6 @@ png::vec3 png::Renderer::Hit(RTCRayHit& rayhit, int depth) {
   constexpr int kDepth = 5; // ロシアンルーレットで打ち切らない最大深度
   constexpr int kDepthLimit = 64;
 
-  if (depth > 6) {
-    return png::vec3{};
-  }
   rtcIntersect1(sceneHandle, &context, &rayhit);
 
   //no hit
@@ -130,27 +127,24 @@ png::vec3 png::Renderer::Hit(RTCRayHit& rayhit, int depth) {
   newRayhit.ray.org_y = hitPoint.y;
   newRayhit.ray.org_z = hitPoint.z;
 
-  vec3 w, u, v;
-  w = vec3::Normalize(vec3{ rayhit.hit.Ng_x,rayhit.hit.Ng_y,rayhit.hit.Ng_z });
-  constexpr float kEPS = 1e-6;
-  if (fabs(w.x) > kEPS) // ベクトルwと直交するベクトルを作る。w.xが0に近い場合とそうでない場合とで使うベクトルを変える。
-    u = vec3::Normalize(vec3::Cross(vec3(0.0, 1.0, 0.0), w));
-  else
-    u = vec3::Normalize(vec3::Cross(vec3(1.0, 0.0, 0.0), w));
-  v = vec3::Cross(w, u);
-  // コサイン項を使った重点的サンプリング
-  const double r1 = 2 * std::numbers::pi * random_double();
-  const double r2 = random_double(), r2s = sqrt(r2);
-  vec3 dir = vec3::Normalize((
-    u * cos(r1) * r2s +
-    v * sin(r1) * r2s +
-    w * sqrt(1.0 - r2)));
-
-  //hoge
-  vec3 hogeDir = vec3::Normalize(vec3{ rayhit.ray.dir_x ,rayhit.ray.dir_y,rayhit.ray.dir_z });
-  vec3 hogehoge = hogeDir - w * 2.0 * vec3::Dot(hogeDir,w);
-
-  //dir = vec3::Normalize(dir + hogehoge*2.0f);
+  vec3 dir;
+  {
+    vec3 w, u, v;
+    w = vec3::Normalize(vec3{ rayhit.hit.Ng_x,rayhit.hit.Ng_y,rayhit.hit.Ng_z });
+    constexpr float kEPS = 1e-6;
+    if (fabs(w.x) > kEPS) // ベクトルwと直交するベクトルを作る。w.xが0に近い場合とそうでない場合とで使うベクトルを変える。
+      u = vec3::Normalize(vec3::Cross(vec3(0.0, 1.0, 0.0), w));
+    else
+      u = vec3::Normalize(vec3::Cross(vec3(1.0, 0.0, 0.0), w));
+    v = vec3::Cross(w, u);
+    // コサイン項を使った重点的サンプリング
+    const double r1 = 2 * std::numbers::pi * random_double();
+    const double r2 = random_double(), r2s = sqrt(r2);
+    vec3 dir = vec3::Normalize((
+      u * cos(r1) * r2s +
+      v * sin(r1) * r2s +
+      w * sqrt(1.0 - r2)));
+  }
 
   newRayhit.ray.dir_x = dir.x;
   newRayhit.ray.dir_y = dir.y;
@@ -177,7 +171,7 @@ png::vec3 png::Renderer::Hit(RTCRayHit& rayhit, int depth) {
     russian_roulette_probability = 1.0;
   }
   vec3 weight = objColor / russian_roulette_probability;
-  return emission + objColor *incoming_radiance;
+  return emission + weight *incoming_radiance;
 }
 
 png::vec3 png::Renderer::PrimalRayTracing(RTCRayHit& rayhit) {
