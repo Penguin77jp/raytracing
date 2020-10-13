@@ -11,6 +11,7 @@ namespace png {
     png::Camera cam;
     void Change() {
       cam.Change();
+      renderTex->Change();
     }
 
   private:

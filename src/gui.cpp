@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
+#include <map>
 
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
 #include <GL/gl3w.h>            // Initialize with gl3wInit()
@@ -202,6 +203,29 @@ void png::GUI::Update() {
   {
     ImGui::Begin("Debug");
 
+    //info
+    {
+      ImGui::Text("sample :%d", Singleton<png::G_Data>::singleton().renderTex->sampleCounter);
+    }
+    // texutre
+    {
+      //ImGui::SliderFloat("Texture Size", &textureSize, 0.01f, 10.0f);
+      static int width = Singleton<png::G_Data>::singleton().renderTex->width;
+      if (ImGui::InputInt("Width", &width,10,100)) {
+        Singleton<png::G_Data>::singleton().renderTex->width = width;
+        Singleton<png::G_Data>::singleton().renderTex->height = width;
+        Singleton<png::G_Data>::singleton().Change();
+      }
+    }
+    // camera type
+    {
+      const char* items[] = { "Path Tracing","Primal Ray Tracing","Lambert Diffuse" };
+      static int item_current = 0;
+      if (ImGui::Combo("combo", &item_current, items, sizeof(items) / sizeof(char*))) {
+        Singleton<png::G_Data>::singleton().cam.type = item_current;
+        Singleton<png::G_Data>::singleton().Change();
+      }
+    }
     //camera origin
     {
       png::vec3 org = Singleton<png::G_Data>::singleton().cam.origin;
@@ -224,7 +248,7 @@ void png::GUI::Update() {
 
     //camera fov
     {
-      if (ImGui::SliderFloat("Camera FOV", &Singleton<png::G_Data>::singleton().cam.fov,0.0f,10.0f)) {
+      if (ImGui::SliderFloat("Camera FOV", &Singleton<png::G_Data>::singleton().cam.fov, 0.0f, 10.0f)) {
         Singleton<png::G_Data>::singleton().Change();
       }
     }
@@ -236,8 +260,7 @@ void png::GUI::Update() {
     png::Texture* tex = Singleton<png::G_Data>::singleton().renderTex;
     ImGui::Begin("OpenGL Texture Text");
     ImGui::Text("size = %d x %d", tex->width, tex->height);
-    const float size = 1.0f;
-    ImGui::Image((void*)(intptr_t)(*(tex->image_id)), ImVec2(tex->width * size, tex->height * size));
+    ImGui::Image((void*)(intptr_t)(*(tex->image_id)), ImVec2(500,500));
     ImGui::End();
   }
 

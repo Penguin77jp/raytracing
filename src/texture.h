@@ -27,14 +27,16 @@ using namespace gl;
 namespace png {
   class Texture {
   private:
+    std::vector<unsigned char> image_data;
 
   public:
     Texture(int w, int h);
     void Update();
+    void Change();
 
     uint16_t width, height;
-    char hoge;
+    unsigned int sampleCounter;
     GLuint* image_id; // GLuint
-    std::vector<unsigned char> image_data;
+    std::vector<float> image_dataF;
   };
 }

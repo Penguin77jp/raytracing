@@ -86,7 +86,8 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;IMGUI_IMPL_OPENGL_LOADER_GL3W;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <PreprocessToFile>false</PreprocessToFile>
+      <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;IMGUI_IMPL_OPENGL_LOADER_GL3W;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -131,7 +132,8 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
-      <PreprocessToFile>false</PreprocessToFile>
+      <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;IMGUI_IMPL_OPENGL_LOADER_GL3W;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -175,7 +177,8 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;IMGUI_IMPL_OPENGL_LOADER_GL3W;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <PreprocessToFile>false</PreprocessToFile>
+      <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;IMGUI_IMPL_OPENGL_LOADER_GL3W;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -267,6 +270,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\ray.h" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\render.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\render.h" />
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\sceneData.h" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\std_image.h" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\texture.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\texture.h" />

@@ -2,7 +2,6 @@
 #include "examples/imgui_impl_glfw.h"
 #include "examples/imgui_impl_opengl3.h"
 #include "std_image.h"
-
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
 #include <GL/gl3w.h>            // Initialize with gl3wInit()
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
@@ -24,18 +23,18 @@ using namespace gl;
 #else
 #include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #endif
-
 #include <GLFW/glfw3.h>
-
-#include "texture.h"
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
+#include "texture.h"
+#include <cmath>
 
-png::Texture::Texture(int w, int h) : width(w), height(h), image_id(nullptr) {
-  image_data.resize(4*width * height);
+png::Texture::Texture(int w, int h) : width(w), height(h), image_id(nullptr),sampleCounter(0) {
+  image_data.resize(4 * width * height);
+  image_dataF.resize(image_data.size());
   for (int i = 0; i < image_data.size(); ++i) {
-    image_data[i] = (unsigned char)255;
+    image_data[i] = image_dataF[i]= 0;
   }
 
   // Create a OpenGL texture identifier
@@ -59,6 +58,17 @@ void png::Texture::Update() {
   glDeleteTextures(1, image_id);
   delete image_id;
 
+  sampleCounter++;
+#pragma omp parallel for
+  for (int i = 0; i < image_data.size(); ++i) {
+    float val = image_dataF[i]/sampleCounter;
+    if (val > 1.0f) {
+      val = 1.0f;
+    }
+    image_data[i] = (unsigned char)(255 * val);
+    //image_data[i] = (unsigned char)(255*std::pow(val,2.2f));
+  }
+
   // Create a OpenGL texture identifier
   GLuint image_texture;
   glGenTextures(1, &image_texture);
@@ -72,4 +82,13 @@ void png::Texture::Update() {
   glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data.data());
   image_id = new GLuint(image_texture);
+}
+
+void png::Texture::Change() {
+  image_data.resize(4 * width * height);
+  image_dataF.resize(image_data.size());
+  for (int i = 0; i < image_data.size(); ++i) {
+    image_data[i] = image_dataF[i] = 0;
+  }
+  sampleCounter = 0;
 }

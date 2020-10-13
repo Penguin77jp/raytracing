@@ -54,6 +54,9 @@
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\sceneData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\std_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
