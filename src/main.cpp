@@ -4,31 +4,7 @@
 #include "render.h"
 #include "random.h"
 
-void hoge() {
-  png::Random rnd(1);
-  double ans = 0;
-  double max = 0;
-  double min = 1;
-  constexpr int N = 10;
-  //constexpr int N = 99999999999;
-  for (int i = 0; i < N; ++i) {
-    //std::cout << rnd.next01() << std::endl;
-    double sample = rnd.next01();
-    std::cout << sample << std::endl;
-    ans += sample/ N;
-    if (max < sample) {
-      max = sample;
-    }
-    if (min > sample) {
-      min = sample;
-    }
-  }
-  std::cout << ans << " , min = " << min << " , max = "<<max;
-}
-
 int main(int, char**) {
-  hoge();
-  //return 0;
   png::GUI gui;
   png::Texture* p_renderTex = new png::Texture{ 25,25 };
   png::Renderer renderer;
