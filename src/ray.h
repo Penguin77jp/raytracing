@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <cmath>
 
 namespace png {
@@ -43,6 +44,9 @@ namespace png {
       this->y -= b.y;
       this->z -= b.z;
       return *this;
+    }
+    operator std::string() {
+      return std::to_string(this->x) + std::string(" , ") + std::to_string(this->y) + std::string(" , ") + std::to_string(this->z);
     }
 
     static float Dot(vec3 a, vec3 b) {

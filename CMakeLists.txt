@@ -22,3 +22,5 @@ target_link_libraries(raytracing opengl32.lib)
 target_link_libraries(raytracing ${CMAKE_CURRENT_SOURCE_DIR}/embree/bin/embree3.lib)
 
 add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GL3W)
+
+set_property(TARGET raytracing PROPERTY CXX_STANDARD 20)

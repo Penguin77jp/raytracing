@@ -35,6 +35,7 @@ namespace png {
     void Change();
 
     uint16_t width, height;
+    unsigned int superSampling;
     unsigned int sampleCounter;
     GLuint* image_id; // GLuint
     std::vector<float> image_dataF;

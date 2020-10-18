@@ -69,6 +69,32 @@ png::GUI::~GUI() {
 //=============================================================================
 //=============================================================================
 //=============================================================================
+static bool ImGuiComboUI(const std::string& caption, std::string& current_item,
+                         const std::vector<std::string>& items) {
+  bool changed = false;
+
+  if (ImGui::BeginCombo(caption.c_str(), current_item.c_str())) {
+    for (int n = 0; n < items.size(); n++) {
+      bool is_selected = (current_item == items[n]);
+      if (ImGui::Selectable(items[n].c_str(), is_selected)) {
+        current_item = items[n];
+        changed = true;
+      }
+      if (is_selected) {
+        // Set the initial focus when opening the combo (scrolling + for
+        // keyboard navigation support in the upcoming navigation branch)
+        ImGui::SetItemDefaultFocus();
+      }
+    }
+    ImGui::EndCombo();
+  }
+
+  return changed;
+}
+
+//=============================================================================
+//=============================================================================
+//=============================================================================
 void png::GUI::Init() {
   // Setup window
   glfwSetErrorCallback(glfw_error_callback);
@@ -203,6 +229,18 @@ void png::GUI::Update() {
   {
     ImGui::Begin("Debug");
 
+    //stop
+    {
+      ImGuiIO& io = ImGui::GetIO();
+
+      for (int i = 0; i < IM_ARRAYSIZE(io.KeysDown); i++) {
+        if (ImGui::IsKeyReleased(i) && i == 32) {
+          //ImGui::SameLine(); ImGui::Text("%d (0x%X)", i, i);
+          Singleton<png::G_Data>::singleton().IsRender = !Singleton<png::G_Data>::singleton().IsRender;
+        }
+      }
+    }
+
     //info
     {
       ImGui::Text("sample :%d", Singleton<png::G_Data>::singleton().renderTex->sampleCounter);
@@ -211,9 +249,14 @@ void png::GUI::Update() {
     {
       //ImGui::SliderFloat("Texture Size", &textureSize, 0.01f, 10.0f);
       static int width = Singleton<png::G_Data>::singleton().renderTex->width;
-      if (ImGui::InputInt("Width", &width,10,100)) {
+      if (ImGui::InputInt("Width", &width, 10, 100)) {
         Singleton<png::G_Data>::singleton().renderTex->width = width;
         Singleton<png::G_Data>::singleton().renderTex->height = width;
+        Singleton<png::G_Data>::singleton().Change();
+      }
+      static int tmp_superSampling = Singleton<png::G_Data>::singleton().renderTex->superSampling;
+      if (ImGui::InputInt("Super Sampling", &tmp_superSampling, 1, 10)) {
+        Singleton<png::G_Data>::singleton().renderTex->superSampling = tmp_superSampling;
         Singleton<png::G_Data>::singleton().Change();
       }
     }
@@ -226,6 +269,14 @@ void png::GUI::Update() {
         Singleton<png::G_Data>::singleton().Change();
       }
     }
+    // hoge 
+    {
+      std::vector<std::string> items{"a","b","c"};
+      static int item_current = 0;
+      static std::string caption;
+      static std::string current_item;
+      //if (ImGuiComboUI());
+    }
     //camera origin
     {
       png::vec3 org = Singleton<png::G_Data>::singleton().cam.origin;
@@ -237,7 +288,7 @@ void png::GUI::Update() {
     }
 
     //camera target
-    {
+    { 
       png::vec3 target = Singleton<png::G_Data>::singleton().cam.target;
       float vec3[3] = { target.x, target.y, target.z };
       if (ImGui::InputFloat3("Camera Target", vec3)) {
@@ -260,7 +311,7 @@ void png::GUI::Update() {
     png::Texture* tex = Singleton<png::G_Data>::singleton().renderTex;
     ImGui::Begin("OpenGL Texture Text");
     ImGui::Text("size = %d x %d", tex->width, tex->height);
-    ImGui::Image((void*)(intptr_t)(*(tex->image_id)), ImVec2(500,500));
+    ImGui::Image((void*)(intptr_t)(*(tex->image_id)), ImVec2(500, 500));
     ImGui::End();
   }
 

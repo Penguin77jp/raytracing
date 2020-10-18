@@ -30,7 +30,7 @@ using namespace gl;
 #include "texture.h"
 #include <cmath>
 
-png::Texture::Texture(int w, int h) : width(w), height(h), image_id(nullptr),sampleCounter(0) {
+png::Texture::Texture(int w, int h) : width(w), height(h), image_id(nullptr),sampleCounter(0),superSampling(1) {
   image_data.resize(4 * width * height);
   image_dataF.resize(image_data.size());
   for (int i = 0; i < image_data.size(); ++i) {

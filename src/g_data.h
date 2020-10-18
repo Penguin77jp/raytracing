@@ -9,6 +9,7 @@ namespace png {
   public:
     png::Texture* renderTex;
     png::Camera cam;
+    bool IsRender;
     void Change() {
       cam.Change();
       renderTex->Change();
@@ -16,6 +17,6 @@ namespace png {
 
   private:
     friend class Singleton<G_Data>;
-    G_Data() : renderTex(nullptr), cam(png::Camera{}) {}
+    G_Data() : renderTex(nullptr), cam(png::Camera{}),IsRender(true) {}
   };
 }
