@@ -15,7 +15,6 @@ int main(int, char**) {
     png::vec3{+0.0f,+2.0f,-5.0f},
     png::vec3{+0.0f,+0.0f,+0.0f},
     1.4f,
-    png::vec3{0.0f,1.0f,0.0f}
   };
 
 

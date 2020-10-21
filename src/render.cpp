@@ -30,29 +30,28 @@ png::Renderer::Renderer() {
   RTCGeometry geometryHandle = rtcNewGeometry(deviceHandle, RTC_GEOMETRY_TYPE_TRIANGLE);
 
 
-  scene.list.push_back(Box{ vec3{+1.5f,+0.0f,+0.0f},vec3{1.0f,0.3f,0.3f},vec3{} });
-  scene.list.push_back(Box{ vec3{-1.5f,+0.0f,+0.0f},vec3{0.3f,1.0f,0.3f},vec3{} });
+  //scene.list.push_back(Box{ vec3{+1.5f,+0.0f,+0.0f},vec3{1.0f,0.3f,0.3f},vec3{} });
+  //scene.list.push_back(Box{ vec3{-1.5f,+0.0f,+0.0f},vec3{0.3f,1.0f,0.3f},vec3{} });
   const float emission = 2.0f;
-  scene.list.push_back(Box{ vec3{-0.0f,+3.0f,+0.0f},vec3{1.0f,1.0f,1.0f},vec3{emission,emission,emission}});
-  //scene.list.push_back(Box{ vec3{-0.0f,-3.0f,+0.0f},vec3{1.0f,1.0f,1.0f},vec3{emission,emission,emission} });
+  //scene.list.push_back(Box{ vec3{-0.0f,+3.0f,+0.0f},vec3{1.0f,1.0f,1.0f},vec3{emission,emission,emission}});
 
   //box
   {
     const float side = 55;
     float col = 0.7f;
     vec3 color{ col,col,col };
-    scene.list.push_back(Box{ vec3{-side,+00.0f,+00.0f},color,vec3{},50 });
-    scene.list.push_back(Box{ vec3{side ,+00.0f,+00.0f},color,vec3{},50 });
-    scene.list.push_back(Box{ vec3{0.0f ,-side ,+00.0f},color,vec3{},50 });
-    scene.list.push_back(Box{ vec3{0.0f ,side  ,+00.0f},color,vec3{},50 });
-    scene.list.push_back(Box{ vec3{0.0f ,0.0f  ,-side },color,vec3{},50 });
-    scene.list.push_back(Box{ vec3{0.0f ,0.0f  ,+side },color,vec3{},50 });
+    //scene.list.push_back(Box{ vec3{-side,+00.0f,+00.0f},color,vec3{},50 });
+    //scene.list.push_back(Box{ vec3{side ,+00.0f,+00.0f},color,vec3{},50 });
+    //scene.list.push_back(Box{ vec3{0.0f ,-side ,+00.0f},color,vec3{},50 });
+    //scene.list.push_back(Box{ vec3{0.0f ,side  ,+00.0f},color,vec3{},50 });
+    //scene.list.push_back(Box{ vec3{0.0f ,0.0f  ,-side },color,vec3{},50 });
+    //scene.list.push_back(Box{ vec3{0.0f ,0.0f  ,+side },color,vec3{},50 });
   }
 
 
   std::vector<vec3> vec_geometoryList;
   std::vector<std::vector<unsigned int>> vec_polygonIndex;
-  scene.GetLise(vec_geometoryList, vec_polygonIndex);
+  scene.GetVertex(vec_geometoryList, vec_polygonIndex);
 
   std::vector<Vertex> geometryVertices;
   std::vector<PolygonIndex> geometryPolygons;

@@ -5,10 +5,28 @@
 #include <array>
 
 namespace png {
-  class Triangle {
+  class SceneObject {
+  public:
+    vec3 color;
+    vec3 emissionColor;
+
+    SceneObject(vec3 color, vec3 emissionColor) :color(color), emissionColor(emissionColor) {}
+    SceneObject(SceneObject& obj) {
+      this->color = obj.color;
+      this->emissionColor = obj.emissionColor;
+    }
+    SceneObject() : color(vec3{}), emissionColor(vec3{}) {}
+    ~SceneObject() = default;
+    virtual unsigned int NumberVertex() = 0;
+    virtual void AddVertex(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex) = 0;
+  };
+
+  class Triangle : public SceneObject {
   private:
   public:
-    Triangle(vec3 v1, vec3 v2, vec3 v3, vec3 color, vec3 emissionColor) :v1(v1), v2(v2), v3(v3), color(color), emissionColor(emissionColor) {}
+    vec3 v1, v2, v3;
+
+    Triangle(vec3 v1, vec3 v2, vec3 v3, vec3 color, vec3 emissionColor) :v1(v1), v2(v2), v3(v3), SceneObject(color, emissionColor) {}
     Triangle(const Triangle& a) {
       this->v1 = a.v1;
       this->v2 = a.v2;
@@ -16,20 +34,19 @@ namespace png {
       this->color = a.color;
       this->emissionColor = a.emissionColor;
     }
-    vec3 v1, v2, v3;
-    vec3 color;
-    vec3 emissionColor;
 
-    void GetLine(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex, int& polygonCounter) {
+    unsigned int NumberVertex() override {
+      return 3;
+    }
+    void AddVertex(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex) override {
       geometryList.push_back(v1);
       geometryList.push_back(v2);
       geometryList.push_back(v3);
-      polygonIndex.push_back(std::vector<unsigned int>{0 + (unsigned int)polygonCounter, 1 + (unsigned int)polygonCounter, 2 + (unsigned int)polygonCounter});
-      polygonCounter += 3;
+      polygonIndex.push_back(std::vector<unsigned int>{0, 1, 2});
     }
   };
 
-  class Box {
+  class Box : public SceneObject {
   private:
     const std::array<vec3, 8> Kgeometory{
       vec3{-1.0f, +1.0f, -1.0f } ,
@@ -56,7 +73,7 @@ namespace png {
       {2,7,6},
   } };
   public:
-    Box(vec3 offset, vec3 color, vec3 emissionColor, float size = 1.0f) :offset(offset), color(color), emissionColor(emissionColor), size(size) {}
+    Box(vec3 offset, vec3 color, vec3 emissionColor, float size = 1.0f) :offset(offset), SceneObject(color, emissionColor), size(size) {}
     Box(const Box& a) {
       this->offset = a.offset;
       this->size = a.size;
@@ -64,18 +81,18 @@ namespace png {
       this->emissionColor = a.emissionColor;
     }
     vec3 offset;
-    vec3 color;
-    vec3 emissionColor;
     float size;
 
-    void GetLine(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex, int& polygonCounter) {
+    unsigned int NumberVertex() {
+      return 12;
+    }
+    void AddVertex(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex) {
       for (int i = 0; i < 8; ++i) {
         geometryList.push_back(Kgeometory[i] * size + offset);
       }
       for (int i = 0; i < 12; ++i) {
-        polygonIndex.push_back(std::vector<unsigned int>{polygonCounter + KpolygonIndex[i][0], polygonCounter + KpolygonIndex[i][1], polygonCounter + KpolygonIndex[i][2]});
+        polygonIndex.push_back(std::vector<unsigned int>{KpolygonIndex[i][0], KpolygonIndex[i][1], KpolygonIndex[i][2]});
       }
-      polygonCounter += 8;
     }
   };
 
@@ -86,14 +103,23 @@ namespace png {
     Scene() : polygonCounter(0) {}
 
     std::vector<Box> list;
-    //std::vector<Triangle> list;
 
-    void GetLise(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex) {
+    void GetVertex(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex) {
+      int counterIndex = 0;
       for (int i = 0; i < list.size(); ++i) {
-        list[i].GetLine(geometryList, polygonIndex, polygonCounter);
+        std::vector<std::vector<unsigned int>> tmp_polygonIndex;
+        list[i].AddVertex(geometryList, tmp_polygonIndex);
+        for (int l = 0; l < tmp_polygonIndex.size(); ++l) {
+          polygonIndex.push_back(std::vector<unsigned int>{ tmp_polygonIndex[l][0] + counterIndex, tmp_polygonIndex[l][1] + counterIndex, tmp_polygonIndex[l][2] + counterIndex});
+        }
+        counterIndex += list[i].NumberVertex();
       }
     }
 
+    //primitive IDからオブジェクトIDに変更します
+    int GetP2O(int index) {
+      return -1;
+    }
     vec3 GetColor(int index) {
       return list[(int)(index / 12.0f)].color;
     }

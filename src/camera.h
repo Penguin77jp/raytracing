@@ -3,14 +3,6 @@
 #include "ray.h"
 
 namespace png {
-  class Aperture {
-
-  };
-
-  class ThinLens {
-
-  };
-
   class Camera {
   public:
     int type;
