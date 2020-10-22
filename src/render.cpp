@@ -11,7 +11,7 @@
 #include <random>
 #include <numbers>
 #include <cmath>
-#include <time.h>
+#include <memory>
 
 constexpr float FLOAT_INFINITY = std::numeric_limits<float>::max();
 
@@ -30,10 +30,11 @@ png::Renderer::Renderer() {
   RTCGeometry geometryHandle = rtcNewGeometry(deviceHandle, RTC_GEOMETRY_TYPE_TRIANGLE);
 
 
-  //scene.list.push_back(Box{ vec3{+1.5f,+0.0f,+0.0f},vec3{1.0f,0.3f,0.3f},vec3{} });
-  //scene.list.push_back(Box{ vec3{-1.5f,+0.0f,+0.0f},vec3{0.3f,1.0f,0.3f},vec3{} });
+  //scene.list.emplace_back(std::make_unique<Triangle>(Triangle{ vec3{+1.0f,+0.0f,+0.0f},vec3{-1.0f,+0.0f,+0.0f},vec3{+0.0f,+1.0f,+0.0f},vec3{1.0f,0.3f,0.3f},vec3{} }));
+  //scene.list.emplace_back(std::make_unique<Box>(Box{ vec3{+1.5f,+0.0f,+0.0f},vec3{1.0f,0.3f,0.3f},vec3{} }));
+  //scene.list.emplace_back(std::make_unique<Box>(Box{ vec3{-1.5f,+0.0f,+0.0f},vec3{0.3f,1.0f,0.3f},vec3{} }));
   const float emission = 2.0f;
-  //scene.list.push_back(Box{ vec3{-0.0f,+3.0f,+0.0f},vec3{1.0f,1.0f,1.0f},vec3{emission,emission,emission}});
+  scene.list.emplace_back(std::make_unique<Box>(Box{ vec3{-0.0f,+3.0f,+0.0f},vec3{1.0f,1.0f,1.0f},vec3{emission,emission,emission} }));
 
   //box
   {
@@ -201,7 +202,7 @@ void png::Renderer::Draw(std::vector<float>& image) {
     return;
   }
 
-  #pragma omp parallel for
+  //#pragma omp parallel for
   for (int32_t y = 0; y < screen_height; ++y) {
     RTCRayHit rayhit;
     //org

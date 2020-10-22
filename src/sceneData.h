@@ -3,6 +3,7 @@
 #include "ray.h"
 #include <vector>
 #include <array>
+#include <memory>
 
 namespace png {
   class SceneObject {
@@ -102,29 +103,36 @@ namespace png {
   public:
     Scene() : polygonCounter(0) {}
 
-    std::vector<Box> list;
+    std::vector<std::unique_ptr<SceneObject>> list;
 
     void GetVertex(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex) {
       int counterIndex = 0;
       for (int i = 0; i < list.size(); ++i) {
         std::vector<std::vector<unsigned int>> tmp_polygonIndex;
-        list[i].AddVertex(geometryList, tmp_polygonIndex);
+        list[i]->AddVertex(geometryList, tmp_polygonIndex);
         for (int l = 0; l < tmp_polygonIndex.size(); ++l) {
           polygonIndex.push_back(std::vector<unsigned int>{ tmp_polygonIndex[l][0] + counterIndex, tmp_polygonIndex[l][1] + counterIndex, tmp_polygonIndex[l][2] + counterIndex});
         }
-        counterIndex += list[i].NumberVertex();
+        counterIndex += list[i]->NumberVertex();
       }
     }
 
     //primitive IDからオブジェクトIDに変更します
-    int GetP2O(int index) {
+    int GetP2O(unsigned int index) {
+      unsigned int tmp_counter = 0;
+      for (int i = 0; i < list.size(); ++i) {
+        if (tmp_counter >= index) {
+          return i;
+        }
+        tmp_counter += list[i]->NumberVertex();
+      }
       return -1;
     }
     vec3 GetColor(int index) {
-      return list[(int)(index / 12.0f)].color;
+      return list[GetP2O(index)]->color;
     }
     vec3 GetEmissionColor(int index) {
-      return list[(int)index / 12.0f].emissionColor;
+      return list[GetP2O(index)]->emissionColor;
     }
   };
 }
