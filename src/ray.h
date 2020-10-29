@@ -12,13 +12,13 @@ namespace png {
     vec3(const vec3& a) : x(a.x), y(a.y), z(a.z) {}
 
     //operator
-    vec3 operator +(vec3 a) {
+    vec3 operator +(vec3 a) const {
       return vec3(this->x + a.x, this->y + a.y, this->z + a.z);
     }
-    vec3 operator -(const vec3& b) {
-      return vec3(this->x - b.x, this->y - b.y, this->z - b.z);
+    vec3 operator -(const vec3& a) const {
+      return vec3(this->x - a.x, this->y - a.y, this->z - a.z);
     }
-    vec3 operator -() {
+    vec3 operator -() const {
       return vec3(-this->x, -this->y, -this->z);
     }
     vec3 operator *(const vec3& a) const {
@@ -27,10 +27,10 @@ namespace png {
     vec3 operator* (float a) const {
       return vec3(this->x * a, this->y * a, this->z * a);
     }
-    vec3 operator /(const vec3& a) {
+    vec3 operator /(const vec3& a) const {
       return vec3(this->x / a.x, this->y / a.y, this->z / a.z);
     }
-    vec3 operator /(const float& b) {
+    vec3 operator /(const float& b) const {
       return vec3(this->x / b, this->y / b, this->z / b);
     }
     vec3& operator +=(const vec3& b) {
@@ -45,7 +45,7 @@ namespace png {
       this->z -= b.z;
       return *this;
     }
-    operator std::string() {
+    operator std::string() const {
       return std::to_string(this->x) + std::string(" , ") + std::to_string(this->y) + std::string(" , ") + std::to_string(this->z);
     }
 

@@ -1,11 +1,11 @@
 #include "gui.h"
-#include "texture.h"
+#include "RenderTarget.h"
 #include "g_data.h"
 #include <iostream>
 
 #include "imgui.h"
-#include "examples/imgui_impl_glfw.h"
-#include "examples/imgui_impl_opengl3.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
@@ -271,7 +271,7 @@ void png::GUI::Update() {
     }
     // hoge 
     {
-      std::vector<std::string> items{"a","b","c"};
+      std::vector<std::string> items{ "a","b","c" };
       static int item_current = 0;
       static std::string caption;
       static std::string current_item;
@@ -279,16 +279,52 @@ void png::GUI::Update() {
     }
     //camera origin
     {
-      png::vec3 org = Singleton<png::G_Data>::singleton().cam.origin;
+      // Axis-aligned param
+      png::vec3& org = Singleton<png::G_Data>::singleton().cam.origin;
       float vec3[3] = { org.x, org.y, org.z };
       if (ImGui::InputFloat3("Camera Origin", vec3)) {
         Singleton<png::G_Data>::singleton().cam.origin = png::vec3(vec3[0], vec3[1], vec3[2]);
         Singleton<png::G_Data>::singleton().Change();
       }
+
+      // degree param
+      const float length = std::sqrtf(org.x * org.x + org.y * org.y + org.z * org.z);
+      float tmp_cal = 0.0f;
+      {
+        int tmp_sign = ((0.0f < org.x) - (org.x < 0.0f)) + 1;
+        float tmp_theta = std::acosf(org.z / std::sqrtf(org.z * org.z + org.x * org.x)) / std::numbers::pi;
+        if (tmp_sign) {
+          tmp_cal = tmp_theta * 0.5f;
+        } else {
+          tmp_cal = 1.0f - tmp_theta * 0.5f;
+        }
+      }
+      float theta[3] = {
+        acosf(org.y / length) / std::numbers::pi,
+        tmp_cal ,
+        length
+      };
+      if (ImGui::SliderFloat("theta", &theta[0], 0.0f, 1.0f) || ImGui::SliderFloat("phi", &theta[1], 0.0f, 1.0f) || ImGui::SliderFloat("length", &theta[2], 0, 10)) {
+        float thetaPI = theta[0] * std::numbers::pi;
+        float phiPI = theta[1] * 2.0f * std::numbers::pi;
+        if (-0.001f <= thetaPI && thetaPI <= 0.001f) {
+          thetaPI = 0.001f;
+        }
+        if (-0.001f <= thetaPI && phiPI <= 0.001f) {
+          phiPI = 0.001f;
+        }
+        png::vec3 hoge = png::vec3(
+          std::sinf(thetaPI) * std::sinf(phiPI),
+          std::cosf(thetaPI),
+          std::sinf(thetaPI) * std::cosf(phiPI)
+        ) * theta[2];
+        Singleton<png::G_Data>::singleton().cam.origin = hoge;
+        Singleton<png::G_Data>::singleton().Change();
+      }
     }
 
     //camera target
-    { 
+    {
       png::vec3 target = Singleton<png::G_Data>::singleton().cam.target;
       float vec3[3] = { target.x, target.y, target.z };
       if (ImGui::InputFloat3("Camera Target", vec3)) {
@@ -308,10 +344,10 @@ void png::GUI::Update() {
   }
 
   {
-    png::Texture* tex = Singleton<png::G_Data>::singleton().renderTex;
+    png::RenderTarget* renderTarget = Singleton<png::G_Data>::singleton().renderTex;
     ImGui::Begin("OpenGL Texture Text");
-    ImGui::Text("size = %d x %d", tex->width, tex->height);
-    ImGui::Image((void*)(intptr_t)(*(tex->image_id)), ImVec2(500, 500));
+    ImGui::Text("size = %d x %d", renderTarget->width, renderTarget->height);
+    ImGui::Image((void*)(intptr_t)(*(renderTarget->image_id)), ImVec2(500, 500));
     ImGui::End();
   }
 

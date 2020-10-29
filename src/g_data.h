@@ -1,18 +1,20 @@
 #pragma once
 #include "Singleton.h"
-#include "texture.h"
+#include "RenderTarget.h"
 #include "camera.h"
+#include "sceneData.h"
 #include <iostream> 
 
 namespace png {
   class G_Data : public Singleton<G_Data> {
   public:
-    png::Texture* renderTex;
+    png::RenderTarget* renderTex;
     png::Camera cam;
+    png::Scene scene;
     bool IsRender;
     void Change() {
       cam.Change();
-      renderTex->Change();
+      renderTex->Init();
     }
 
   private:

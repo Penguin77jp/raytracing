@@ -15,7 +15,7 @@ namespace png {
     vec3 PathTracing(RTCRayHit& rayhit, int depth,Random &rnd);
     vec3 PrimalRayTracing(RTCRayHit& rayhit);
     vec3 LambertDiffuse(RTCRayHit& rayhit);
-    Scene scene;
+    Scene& scene;
   public:
     Renderer();
     ~Renderer();

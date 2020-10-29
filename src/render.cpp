@@ -12,6 +12,7 @@
 #include <numbers>
 #include <cmath>
 #include <memory>
+#include <time.h>
 
 constexpr float FLOAT_INFINITY = std::numeric_limits<float>::max();
 
@@ -24,31 +25,10 @@ struct PolygonIndex {
   unsigned int v0, v1, v2;
 };
 
-png::Renderer::Renderer() {
+png::Renderer::Renderer() : scene(Singleton<png::G_Data>::singleton().scene) {
   deviceHandle = rtcNewDevice(nullptr);
   sceneHandle = rtcNewScene(deviceHandle);
   RTCGeometry geometryHandle = rtcNewGeometry(deviceHandle, RTC_GEOMETRY_TYPE_TRIANGLE);
-
-
-  //scene.list.emplace_back(std::make_unique<Triangle>(Triangle{ vec3{+1.0f,+0.0f,+0.0f},vec3{-1.0f,+0.0f,+0.0f},vec3{+0.0f,+1.0f,+0.0f},vec3{1.0f,0.3f,0.3f},vec3{} }));
-  //scene.list.emplace_back(std::make_unique<Box>(Box{ vec3{+1.5f,+0.0f,+0.0f},vec3{1.0f,0.3f,0.3f},vec3{} }));
-  //scene.list.emplace_back(std::make_unique<Box>(Box{ vec3{-1.5f,+0.0f,+0.0f},vec3{0.3f,1.0f,0.3f},vec3{} }));
-  const float emission = 2.0f;
-  scene.list.emplace_back(std::make_unique<Box>(Box{ vec3{-0.0f,+3.0f,+0.0f},vec3{1.0f,1.0f,1.0f},vec3{emission,emission,emission} }));
-
-  //box
-  {
-    const float side = 55;
-    float col = 0.7f;
-    vec3 color{ col,col,col };
-    //scene.list.push_back(Box{ vec3{-side,+00.0f,+00.0f},color,vec3{},50 });
-    //scene.list.push_back(Box{ vec3{side ,+00.0f,+00.0f},color,vec3{},50 });
-    //scene.list.push_back(Box{ vec3{0.0f ,-side ,+00.0f},color,vec3{},50 });
-    //scene.list.push_back(Box{ vec3{0.0f ,side  ,+00.0f},color,vec3{},50 });
-    //scene.list.push_back(Box{ vec3{0.0f ,0.0f  ,-side },color,vec3{},50 });
-    //scene.list.push_back(Box{ vec3{0.0f ,0.0f  ,+side },color,vec3{},50 });
-  }
-
 
   std::vector<vec3> vec_geometoryList;
   std::vector<std::vector<unsigned int>> vec_polygonIndex;
@@ -102,7 +82,7 @@ png::Renderer::~Renderer() {
 }
 
 
-png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth,Random &rnd) {
+png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth, Random& rnd) {
   constexpr int kDepth = 5; // ロシアンルーレットで打ち切らない最大深度
   constexpr int kDepthLimit = 64;
 
@@ -110,38 +90,26 @@ png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth,Random &rnd) {
 
   //no hit
   if (rayhit.hit.geomID == RTC_INVALID_GEOMETRY_ID) {
-    return png::vec3{ };
+    return Singleton<png::G_Data>::singleton().scene.sceneLight.GetColor(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y ,rayhit.ray.dir_z }) *2.0f;
   }
 
   //next
   RTCRayHit newRayhit;
   png::vec3 hitPoint = vec3{ rayhit.ray.org_x,rayhit.ray.org_y,rayhit.ray.org_z } + vec3::Normalize(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y, rayhit.ray.dir_z }) * rayhit.ray.tfar;
   vec3 normal_n = vec3::Normalize(vec3{ rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z });
-  vec3 objColor = scene.GetColor(rayhit.hit.primID);
+  vec3 objColor = scene.GetMaterial(rayhit.hit.primID)->GetColor();
+  if (objColor.x > 0.8f && objColor.y < 0.1f || objColor.z < 0.1f) {
+    //std::cout << "hoge";
+  }
   newRayhit.ray.org_x = hitPoint.x;
   newRayhit.ray.org_y = hitPoint.y;
   newRayhit.ray.org_z = hitPoint.z;
-  //std::cout << rayhit.hit.Ng_x << ", " << rayhit.hit.Ng_y << ", " << rayhit.hit.Ng_z << std::endl;
 
-  vec3 dir;
-  {
-    vec3 w, u, v;
-    w = vec3::Normalize(vec3{ rayhit.hit.Ng_x,rayhit.hit.Ng_y,rayhit.hit.Ng_z });
-    constexpr float kEPS = 1e-6;
-    if (fabs(w.x) > kEPS) // ベクトルwと直交するベクトルを作る。w.xが0に近い場合とそうでない場合とで使うベクトルを変える。
-      u = vec3::Normalize(vec3::Cross(vec3(0.0, 1.0, 0.0), w));
-    else
-      u = vec3::Normalize(vec3::Cross(vec3(1.0, 0.0, 0.0), w));
-    v = vec3::Cross(w, u);
-    while (true) {
-      const double r1 = 2.0 * std::numbers::pi * rnd.next01();
-      const double r2 = std::acos(2.0 * rnd.next01() - 1.0);
-      dir = w * std::sin(r2) * std::cos(r1) + u * std::sin(r2) * std::sin(r1) + v * std::cos(r2);
-      if (vec3::Dot(dir, normal_n) >= 0) {
-        break;
-      }
-    }
-  }
+  vec3 dir = scene.GetMaterial(rayhit.hit.primID)->GetDirection(
+    vec3::Normalize(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y, rayhit.ray.dir_z }),
+    normal_n,
+    rnd
+  );
 
   newRayhit.ray.dir_x = dir.x;
   newRayhit.ray.dir_y = dir.y;
@@ -157,14 +125,14 @@ png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth,Random &rnd) {
   }
   if (depth > kDepth) {
     if (rnd.next01() >= russian_roulette_probability) {
-      return scene.GetEmissionColor(rayhit.hit.primID);
+      return scene.GetMaterial(rayhit.hit.primID)->GetEmission();
     }
   } else {
     russian_roulette_probability = 1.0;
   }
   vec3 weight = objColor / russian_roulette_probability;
-  vec3 incoming_radiance = PathTracing(newRayhit, depth + 1,rnd) * std::abs(vec3::Dot(normal_n, dir)) * 2.0;
-  return scene.GetEmissionColor(rayhit.hit.primID) + weight * incoming_radiance;
+  vec3 incoming_radiance = PathTracing(newRayhit, depth + 1, rnd) * std::abs(vec3::Dot(normal_n, dir)) * 2.0;
+  return scene.GetMaterial(rayhit.hit.primID)->GetEmission() + weight * incoming_radiance;
 }
 
 png::vec3 png::Renderer::PrimalRayTracing(RTCRayHit& rayhit) {
@@ -175,7 +143,7 @@ png::vec3 png::Renderer::PrimalRayTracing(RTCRayHit& rayhit) {
     return png::vec3{ };
   }
 
-  return scene.GetColor(rayhit.hit.primID) * std::clamp(vec3::Dot(vec3(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z), vec3(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z)), 0.0f, 1.0f);
+  return scene.GetMaterial(rayhit.hit.primID)->GetColor() * std::clamp(vec3::Dot(vec3(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z), vec3(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z)), 0.0f, 1.0f);
 }
 
 png::vec3 png::Renderer::LambertDiffuse(RTCRayHit& rayhit) {
@@ -183,10 +151,10 @@ png::vec3 png::Renderer::LambertDiffuse(RTCRayHit& rayhit) {
 
   //no hit
   if (rayhit.hit.geomID == RTC_INVALID_GEOMETRY_ID) {
-    return png::vec3{ };
+    return Singleton<png::G_Data>::singleton().scene.sceneLight.GetColor(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y ,rayhit.ray.dir_z });
   }
 
-  return scene.GetColor(rayhit.hit.primID) * std::abs(vec3::Dot(vec3::Normalize(vec3(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z)), vec3::Normalize(vec3(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z))));
+  return scene.GetMaterial(rayhit.hit.primID)->GetColor() * std::abs(vec3::Dot(vec3::Normalize(vec3(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z)), vec3::Normalize(vec3(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z))));
 }
 
 
@@ -212,7 +180,7 @@ void png::Renderer::Draw(std::vector<float>& image) {
     rayhit.ray.org_z = org.z;
     rayhit.ray.tnear = 0.0f;
     using singleton = Singleton<png::G_Data>;
-    Random rnd{ (unsigned int)( (y + 1) * singleton::singleton().renderTex->width * singleton::singleton().renderTex->height * singleton::singleton().renderTex->sampleCounter)};
+    Random rnd{ (unsigned int)((y + 1) * singleton::singleton().renderTex->width * singleton::singleton().renderTex->height * singleton::singleton().renderTex->sampleCounter) };
     for (int32_t x = 0; x < screen_width; ++x) {
       vec3 l_camX = -Singleton<png::G_Data>::singleton().cam.l_camX;
       vec3 l_camY = Singleton<png::G_Data>::singleton().cam.l_camY;
@@ -229,7 +197,7 @@ void png::Renderer::Draw(std::vector<float>& image) {
         rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
         int camType = Singleton<png::G_Data>::singleton().cam.type;
         if (camType == 0) {
-          color += PathTracing(rayhit, 0,rnd) / superSampling;
+          color += PathTracing(rayhit, 0, rnd) / superSampling;
         } else if (camType == 1) {
           color += PrimalRayTracing(rayhit) / superSampling;
         } else if (camType == 2) {
