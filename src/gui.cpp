@@ -198,6 +198,8 @@ void png::GUI::Update() {
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
+  static bool WritingImageWindow = false;
+
   // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
   if (show_demo_window)
     ImGui::ShowDemoWindow(&show_demo_window);
@@ -207,23 +209,22 @@ void png::GUI::Update() {
     static float f = 0.0f;
     static int counter = 0;
 
-    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+    ImGui::Begin("Debug");                          // Create a window called "Hello, world!" and append into it.
 
-    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-    ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-    ImGui::Checkbox("Another Window", &show_another_window);
+    //ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+    //ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+    //ImGui::Checkbox("Another Window", &show_another_window);
 
-    ImGui::SliderFloat("float", &f, 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-    ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+    //ImGui::SliderFloat("float", &f, 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+    //ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-      counter++;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
+    //if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+      //counter++;
+    //ImGui::SameLine();
+    //ImGui::Text("counter = %d", counter);
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
-    //Singleton<png::G_Data>::singleton().cam.target = f;
   }
 
   {
@@ -340,14 +341,48 @@ void png::GUI::Update() {
       }
     }
 
+    //writing image window
+    {
+      ImGui::Checkbox("Writing Image Window", &WritingImageWindow);
+    }
+
     ImGui::End();
+  }
+
+  {
+    if (WritingImageWindow) {
+      ImGui::Begin("Write Image");
+
+      //write image
+      {
+        static float image_res[2];
+        ImGui::InputFloat2("Writed Image Resolution", image_res);
+        static char fileName[10] = "Hoge.png";
+        ImGui::InputText("Image File Name", fileName, IM_ARRAYSIZE(fileName));
+        if (ImGui::Button("Write Image")) {
+          Singleton<png::G_Data>::singleton().renderTex->WriteImage(fileName);
+        }
+      }
+
+      ImGui::End();
+    }
   }
 
   {
     png::RenderTarget* renderTarget = Singleton<png::G_Data>::singleton().renderTex;
     ImGui::Begin("OpenGL Texture Text");
     ImGui::Text("size = %d x %d", renderTarget->width, renderTarget->height);
-    ImGui::Image((void*)(intptr_t)(*(renderTarget->image_id)), ImVec2(500, 500));
+    const int image_size = 500;
+    ImGui::Image((void*)(intptr_t)(*(renderTarget->image_id)), ImVec2(image_size, image_size));
+    ImGui::End();
+  }
+
+  // 3. Show another simple window.
+  if (show_another_window) {
+    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+    ImGui::Text("Hello from another window!");
+    if (ImGui::Button("Close Me"))
+      show_another_window = false;
     ImGui::End();
   }
 

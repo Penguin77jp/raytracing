@@ -30,6 +30,7 @@ namespace png {
     RenderTarget(const uint16_t w, const uint16_t h);
     void Update();
     void Init();
+    void WriteImage(const char* fileName);
 
     uint16_t width, height;
     unsigned int superSampling;

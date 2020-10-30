@@ -1,3 +1,4 @@
+#include "RenderTarget.h"
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -26,7 +27,8 @@ using namespace gl;
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
-#include "RenderTarget.h"
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 #include <cmath>
 
 png::RenderTarget::RenderTarget(const uint16_t w, const uint16_t h)
@@ -91,4 +93,8 @@ void png::RenderTarget::Init() {
     image_data[i] = image_dataF[i] = 0;
   }
   sampleCounter = 0;
+}
+
+void png::RenderTarget::WriteImage(const char* fileName) {
+  stbi_write_png(fileName, width, height, 4, &image_data[0], 0);
 }

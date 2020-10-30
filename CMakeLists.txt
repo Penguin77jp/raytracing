@@ -4,13 +4,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/embree/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/imgui/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/libs/glfw/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/libs/gl3w)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/stb)
 
 file(GLOB srcfiles 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/*.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_opengl3.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/imgui_impl_glfw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_glfw.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/examples/libs/gl3w/GL/gl3w.c
 )
 

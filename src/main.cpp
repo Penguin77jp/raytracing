@@ -27,31 +27,28 @@ int main(int, char**) {
 
 
     //scene.list.emplace_back(new png::Box{ png::vec3{+1.5f,+0.0f,+0.0f},png::vec3{1.0f,0.3f,0.3f},png::vec3{} });
-    scene.list.emplace_back(new png::Box{ png::vec3{+1.5f,+0.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,0.0f,0.0f},0.5,0.0f) });
-    scene.list.emplace_back(new png::Box{ png::vec3{-1.5f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,1.0f,1.0f},0.8f,0.0f) });
-    scene.list.emplace_back(new png::Box{ png::vec3{+0.0f,+0.0f,-3.0f},new png::MaterialReflect(png::vec3{0.1f,1.0f,0.1f},0.8f,0.0f) });
-    //scene.list.emplace_back(new png::Box{ png::vec3{-1.5f,+0.0f,+0.0f},png::vec3{0.3f,1.0f,0.3f},png::vec3{} });
-    //const float emission = 2.0f;
-    //scene.list.emplace_back(new png::Box{ png::vec3{-0.0f,+3.0f,+0.0f},png::vec3{1.0f,1.0f,1.0f},png::vec3{emission,emission,emission} });
+    scene.list.emplace_back(std::make_unique<png::Box>(png::Box{ png::vec3{-2.0f,+0.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,1.0f,1.0f},0.8f,0.0f) }));
+    scene.list.emplace_back(std::make_unique<png::Box>(png::Box{ png::vec3{+2.0f,+0.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,0.2f,0.2f},0.8f,0.0f) }));
+    const float emission = 2.0f;
+    scene.list.emplace_back(std::make_unique<png::Box>(png::Box{ png::vec3{+0.0f,+3.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,1.0f,1.0f},0.0f,emission) }));
 
     //box
-    /*{
+    {
       const float side = 55;
-      float col = 0.7f;
-      png::vec3 color{ col,col,col };
+      png::MaterialDiffuse* tmp_mat = new png::MaterialDiffuse(png::vec3{ 1.0f,1.0f,1.0f }, 0.6f, 0.0f);
       scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{-side,+00.0f,+00.0f},color,png::vec3{},50 }));
+        png::Box{ png::vec3{-side,+00.0f,+00.0f}, tmp_mat ,50.0f}));
       scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+side,+00.0f,+00.0f},color,png::vec3{},50 }));
+        png::Box{ png::vec3{+side,+00.0f,+00.0f}, tmp_mat ,50.0f }));
       scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+00.0f,-side,+00.0f},color,png::vec3{},50 }));
+        png::Box{ png::vec3{+00.0f,-side,+00.0f}, tmp_mat ,50.0f }));
       scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+00.0f,+side,+00.0f},color,png::vec3{},50 }));
+        png::Box{ png::vec3{+00.0f,+side,+00.0f}, tmp_mat ,50.0f }));
       scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+00.0f,+00.0f,-side},color,png::vec3{},50 }));
+        png::Box{ png::vec3{+00.0f,+00.0f,-side}, tmp_mat ,50.0f }));
       scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+00.0f,+00.0f,+side},color,png::vec3{},50 }));
-    }*/
+        png::Box{ png::vec3{+00.0f,+00.0f,-side}, tmp_mat ,50.0f }));
+    }
 
   }
   png::RenderTarget* p_renderTarget = new png::RenderTarget{ size, size };
@@ -59,10 +56,11 @@ int main(int, char**) {
 
   Singleton<png::G_Data>::singleton().renderTex = p_renderTarget;
   Singleton<png::G_Data>::singleton().scene.sceneLight = png::SceneLight(
-    //png::vec3{1.0f,1.0f,1.0f}
+    png::vec3{ 0.1f,0.1f,0.1f }
+    //png::vec3{ 1.0f,1.0f,1.0f }
     //png::Texture("private src/test_texture.jpg")
     //png::Texture("private src/601265265.835475.jpg")
-    png::Texture("private src/601265293.010277.jpg")
+    //png::Texture("private src/601265293.010277.jpg")
   );
   Singleton<png::G_Data>::singleton().cam = png::Camera{
     0,

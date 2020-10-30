@@ -90,7 +90,7 @@ png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth, Random& rnd) 
 
   //no hit
   if (rayhit.hit.geomID == RTC_INVALID_GEOMETRY_ID) {
-    return Singleton<png::G_Data>::singleton().scene.sceneLight.GetColor(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y ,rayhit.ray.dir_z }) *2.0f;
+    return Singleton<png::G_Data>::singleton().scene.sceneLight.GetColor(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y ,rayhit.ray.dir_z }) *1.0f;
   }
 
   //next
@@ -170,7 +170,7 @@ void png::Renderer::Draw(std::vector<float>& image) {
     return;
   }
 
-  //#pragma omp parallel for
+  #pragma omp parallel for num_threads(6)
   for (int32_t y = 0; y < screen_height; ++y) {
     RTCRayHit rayhit;
     //org
