@@ -143,7 +143,7 @@ namespace png {
   private:
     int polygonCounter;
   public:
-    std::vector<std::unique_ptr<SceneObject>> list;
+    std::vector<std::shared_ptr<SceneObject>> list;
     SceneLight sceneLight;
 
     Scene() : polygonCounter(0) {}

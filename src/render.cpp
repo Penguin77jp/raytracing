@@ -131,7 +131,7 @@ png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth, Random& rnd) 
     russian_roulette_probability = 1.0;
   }
   vec3 weight = objColor / russian_roulette_probability;
-  vec3 incoming_radiance = PathTracing(newRayhit, depth + 1, rnd) * std::abs(vec3::Dot(normal_n, dir)) * 2.0;
+  vec3 incoming_radiance = PathTracing(newRayhit, depth + 1, rnd);
   return scene.GetMaterial(rayhit.hit.primID)->GetEmission() + weight * incoming_radiance;
 }
 

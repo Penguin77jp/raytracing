@@ -9,48 +9,39 @@
 #include "material.h"
 #include <iostream>
 
+void Init_CornellBox(std::vector<std::shared_ptr<png::SceneObject>>& data) {
+  data.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{-2.0f,+0.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,1.0f,1.0f},0.8f,0.0f) }));
+  data.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+2.0f,+0.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,0.2f,0.2f},0.8f,0.0f) }));
+  const float emission = 1.0f;
+  data.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+3.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,1.0f,1.0f},0.0f,emission) }));
+
+  //box
+  {
+    const float side = 55;
+    png::MaterialDiffuse* tmp_mat = new png::MaterialDiffuse(png::vec3{ 1.0f,1.0f,1.0f }, 0.9f, 0.0f);
+    data.emplace_back(std::make_shared<png::Box>(
+      png::Box{ png::vec3{-side,+00.0f,+00.0f}, tmp_mat ,50.0f }));
+    data.emplace_back(std::make_shared<png::Box>(
+      png::Box{ png::vec3{+side,+00.0f,+00.0f}, tmp_mat ,50.0f }));
+    data.emplace_back(std::make_shared<png::Box>(
+      png::Box{ png::vec3{+00.0f,-side,+00.0f}, tmp_mat ,50.0f }));
+    data.emplace_back(std::make_shared<png::Box>(
+      png::Box{ png::vec3{+00.0f,+side,+00.0f}, tmp_mat ,50.0f }));
+    data.emplace_back(std::make_shared<png::Box>(
+      png::Box{ png::vec3{+00.0f,+00.0f,-side}, tmp_mat ,50.0f }));
+    data.emplace_back(std::make_shared<png::Box>(
+      png::Box{ png::vec3{+00.0f,+00.0f,-side}, tmp_mat ,50.0f }));
+  }
+}
+
 int main(int, char**) {
   png::GUI gui;
   constexpr int size = 100;
 
   //scene setting
-  {
-    png::Scene& scene = Singleton<png::G_Data>::singleton().scene;
+  png::Scene& scene = Singleton<png::G_Data>::singleton().scene;
+  Init_CornellBox(scene.list);
 
-    //scene.list.emplace_back(std::make_unique<png::Triangle>(png::Triangle{ png::vec3{+1.0f,+0.0f,+0.0f},png::vec3{-1.0f,+0.0f,+0.0f},png::vec3{+0.0f,+1.0f,+0.0f},png::vec3{1.0f,0.3f,0.3f},png::vec3{} }));
-    //scene.list.emplace_back(std::make_unique<png::Triangle>(png::Triangle{ png::vec3{+5.0f,+0.0f,+0.0f},png::vec3{+3.0f,+0.0f,+0.0f},png::vec3{+4.0f,+1.0f,+0.0f},png::vec3{0.3f,1.0f,0.3f},png::vec3{} }));
-
-
-
-    //std::unique_ptr<png::vec3> hoge = std::make_unique<png::vec3>(1, 2, 3);
-    std::unique_ptr<png::vec3> hoge(new png::vec3(0, 1, 2));
-
-
-    //scene.list.emplace_back(new png::Box{ png::vec3{+1.5f,+0.0f,+0.0f},png::vec3{1.0f,0.3f,0.3f},png::vec3{} });
-    scene.list.emplace_back(std::make_unique<png::Box>(png::Box{ png::vec3{-2.0f,+0.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,1.0f,1.0f},0.8f,0.0f) }));
-    scene.list.emplace_back(std::make_unique<png::Box>(png::Box{ png::vec3{+2.0f,+0.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,0.2f,0.2f},0.8f,0.0f) }));
-    const float emission = 2.0f;
-    scene.list.emplace_back(std::make_unique<png::Box>(png::Box{ png::vec3{+0.0f,+3.0f,+0.0f},new png::MaterialDiffuse(png::vec3{1.0f,1.0f,1.0f},0.0f,emission) }));
-
-    //box
-    {
-      const float side = 55;
-      png::MaterialDiffuse* tmp_mat = new png::MaterialDiffuse(png::vec3{ 1.0f,1.0f,1.0f }, 0.6f, 0.0f);
-      scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{-side,+00.0f,+00.0f}, tmp_mat ,50.0f}));
-      scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+side,+00.0f,+00.0f}, tmp_mat ,50.0f }));
-      scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+00.0f,-side,+00.0f}, tmp_mat ,50.0f }));
-      scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+00.0f,+side,+00.0f}, tmp_mat ,50.0f }));
-      scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+00.0f,+00.0f,-side}, tmp_mat ,50.0f }));
-      scene.list.emplace_back(std::make_unique<png::Box>(
-        png::Box{ png::vec3{+00.0f,+00.0f,-side}, tmp_mat ,50.0f }));
-    }
-
-  }
   png::RenderTarget* p_renderTarget = new png::RenderTarget{ size, size };
   png::Renderer renderer;
 

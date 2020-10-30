@@ -21,7 +21,6 @@ namespace png {
     MaterialDiffuse(const vec3& col, const float kd, const float emission) : color(col), kd(kd), emission(emission) {}
 
     vec3 GetDirection(const vec3& direction, const vec3& normal, Random& sampler) override {
-      vec3 dir;
       vec3 w, u, v;
       w = vec3::Normalize(vec3{ normal.x,normal.y,normal.z });
       constexpr float kEPS = 1e-6;
@@ -30,14 +29,13 @@ namespace png {
       else
         u = vec3::Normalize(vec3::Cross(vec3(1.0, 0.0, 0.0), w));
       v = vec3::Cross(w, u);
-      while (true) {
-        const double r1 = 2.0 * std::numbers::pi * sampler.next01();
-        const double r2 = std::acos(2.0 * sampler.next01() - 1.0);
-        dir = w * std::sin(r2) * std::cos(r1) + u * std::sin(r2) * std::sin(r1) + v * std::cos(r2);
-        if (vec3::Dot(dir, w) >= 0) {
-          break;
-        }
-      }
+
+      const double r1 = 2 * std::numbers::pi * sampler.next01();
+      const double r2 = sampler.next01(), r2s = sqrt(r2);
+      vec3 dir = vec3::Normalize((
+        u * cos(r1) * r2s +
+        v * sin(r1) * r2s +
+        w * sqrt(1.0 - r2)));
       return dir;
     }
     vec3 GetColor() override {
