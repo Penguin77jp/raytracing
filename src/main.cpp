@@ -18,7 +18,7 @@ void Init_CornellBox(std::vector<std::shared_ptr<png::SceneObject>>& data) {
   //box
   {
     const float side = 55;
-    png::MaterialDiffuse* tmp_mat = new png::MaterialDiffuse(png::vec3{ 1.0f,1.0f,1.0f }, 0.9f, 0.0f);
+    png::MaterialDiffuse* tmp_mat = new png::MaterialDiffuse(png::vec3{ 1.0f,1.0f,1.0f }, 0.5f, 0.0f);
     data.emplace_back(std::make_shared<png::Box>(
       png::Box{ png::vec3{-side,+00.0f,+00.0f}, tmp_mat ,50.0f }));
     data.emplace_back(std::make_shared<png::Box>(
@@ -30,7 +30,7 @@ void Init_CornellBox(std::vector<std::shared_ptr<png::SceneObject>>& data) {
     data.emplace_back(std::make_shared<png::Box>(
       png::Box{ png::vec3{+00.0f,+00.0f,-side}, tmp_mat ,50.0f }));
     data.emplace_back(std::make_shared<png::Box>(
-      png::Box{ png::vec3{+00.0f,+00.0f,-side}, tmp_mat ,50.0f }));
+      png::Box{ png::vec3{+00.0f,+00.0f,+side}, tmp_mat ,50.0f }));
   }
 }
 

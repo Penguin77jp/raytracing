@@ -67,8 +67,8 @@ void png::RenderTarget::Update() {
     if (val > 1.0f) {
       val = 1.0f;
     }
-    image_data[i] = (unsigned char)(255 * val);
-    //image_data[i] = (unsigned char)(255*std::pow(val,2.2f));
+    //image_data[i] = (unsigned char)(255 * val);
+    image_data[i] = (unsigned char)(255*std::pow(val,1.0f/2.2f));
   }
 
   // Create a OpenGL texture identifier
