@@ -25,6 +25,9 @@
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\RenderTarget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

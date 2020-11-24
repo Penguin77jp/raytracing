@@ -76,7 +76,7 @@ namespace png {
 
     //Set
     void SetCam(Camera _cam) {
-      cam = Camera(_cam.type,_cam.origin,_cam.target,_cam.fov,_cam.upVec);
+      //cam = Camera(_cam.origin, _cam.target, _cam.type, _cam.camLens, _cam.fov);
       renderTex->Init();
       delete renderer;
       renderer = new Renderer(scene, *renderTex, cam);

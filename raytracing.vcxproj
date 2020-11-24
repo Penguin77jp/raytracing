@@ -264,6 +264,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\RenderTarget.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\RenderTarget.h" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\Singleton.h" />
+    <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.h" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\gui.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\gui.h" />

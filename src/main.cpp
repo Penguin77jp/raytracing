@@ -4,6 +4,7 @@
 #include "texture.h"
 #include "material.h"
 #include "renderData.h"
+#include "camera.h"
 #include <iostream>
 
 //void Init_CornellBox(std::vector<std::shared_ptr<png::SceneObject>>& data) {
@@ -87,17 +88,19 @@ int main(int, char**) {
   //scene setting
   png::Scene scene;
   Init_NiceScene(scene);
+  png::CameraLens* camLens = new png::PinHole();
   png::RenderData renderData(
     size,
     png::Camera{
+      size,size,
+      png::vec3{ -2.6f,+0.2f,+2.6f },
+      png::vec3{ +0.0f,+0.0f,+0.0f },
       0,
-      png::vec3{-2.6f,+0.2f,+2.6f},
-      png::vec3{+0.0f,+0.0f,+0.0f},
-      0.726,
-      png::vec3{+0.0f,+1.0f,+0.0f},
+      //camLens,
+      0.726f,
     },
     scene
-  );
+    );
 
   png::GUI gui(renderData);
 
