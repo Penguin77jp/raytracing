@@ -1,3 +1,4 @@
+#include "InitOpenGL.h"
 #include "ray.h"
 #include "gui.h"
 #include "random.h"
@@ -56,58 +57,74 @@
 //}
 
 void Init_SkyBoxOnly(png::Scene& scene) {
-  scene.list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{0.1f,0.1f,1.0f},0.5f,0.0f) }));
-  scene.sceneLight = png::SceneLight(
-    new png::Texture("private src/601265265.835475.jpg")
+  png::SceneLight light = png::SceneLight(
+    //new png::Texture("private src/601265265.835475.jpg")
+    new png::Texture("private src/601265442.217750.jpg")
+    //new png::Texture("private src/test.jpg")
     //new png::Texture("private src/601265293.010277.jpg")
   );
+  std::vector<std::shared_ptr<png::SceneObject>> list;
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{0.1f,0.1f,1.0f},0.5f,0.0f),0.0f }));
+  scene = png::Scene(list, light);
 }
 
 void Init_NiceScene(png::Scene& scene) {
-  scene.list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+5.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},0.7f,0.0f) }));
-  scene.list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+5.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{0.1f,1.0f,0.1f},0.7f,0.0f) }));
-  scene.list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{-5.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{0.1f,0.1f,1.0f},0.7f,0.0f) }));
-  scene.list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,-5.0f},new png::MaterialReflect(png::vec3{1.0f,1.0f,0.1f},0.7f,0.0f) }));
+  std::vector<std::shared_ptr<png::SceneObject>> list;
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+5.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},0.7f,0.0f) }));
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+5.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{0.1f,1.0f,0.1f},0.7f,0.0f) }));
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{-5.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{0.1f,0.1f,1.0f},0.7f,0.0f) }));
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,-5.0f},new png::MaterialReflect(png::vec3{1.0f,1.0f,0.1f},0.7f,0.0f) }));
 
   //box
   {
     png::Material* tmp_mat = new png::MaterialReflect(png::vec3{ 1.0f,1.0f,1.0f }, 0.05f, 0.0f);
-    scene.list.emplace_back(std::make_shared<png::Box>(
+    list.emplace_back(std::make_shared<png::Box>(
       png::Box{ png::vec3{+00.0f,-25,+00.0f}, tmp_mat ,25.0f }));
   }
+  scene.SetSceneList(list);
 
-  scene.sceneLight = png::SceneLight(
+  png::SceneLight sceneLight = png::SceneLight(
     new png::Texture("private src/601265265.835475.jpg")
     //new png::Texture("private src/601265293.010277.jpg")
   );
+  scene.SetSceneLight(sceneLight);
+}
+
+void Init_DOF(png::Scene& scene) {
+  std::vector<std::shared_ptr<png::SceneObject>> list;
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,1.0f,1.0f},0.0f,1.0f),0.3 }));
+  scene.SetSceneList(list);
+
+  png::SceneLight sceneLight = png::SceneLight();
+  scene.SetSceneLight(sceneLight);
 }
 
 int main(int, char**) {
+  InitOpenGL_Loader();
   constexpr int size = 100;
 
   //scene setting
   png::Scene scene;
   Init_NiceScene(scene);
-  png::CameraLens* camLens = new png::PinHole();
-  png::RenderData renderData(
-    size,
-    png::Camera{
-      size,size,
-      png::vec3{ -2.6f,+0.2f,+2.6f },
-      png::vec3{ +0.0f,+0.0f,+0.0f },
-      0,
-      //camLens,
-      0.726f,
-    },
-    scene
-    );
+  //Init_DOF(scene);
+  std::shared_ptr<png::RenderTarget> renderTarget(std::make_shared<png::RenderTarget>(size, size));
+  png::ThinLens cam(
+    png::vec3{ -7.1f,+0.8f,+1.7f },
+    png::vec3{ +0.0f,+0.0f,+0.0f },
+    0,
+    0.4,
+    new png::AperturePolygonBlue(),
+    0.1f,
+    1.9f
+  );
+  png::Renderer renderer(&cam,renderTarget, scene);
 
-  png::GUI gui(renderData);
+  png::GUI gui(renderer);
 
   while (!gui.IsClose()) {
-    renderData.renderer->Draw();
-    renderData.renderTex->Update();
-    gui.Update();
+    //renderData.renderer->Draw();
+    //renderData.renderTex->Update();
+    gui.Update(renderTarget);
   }
 
   return 0;

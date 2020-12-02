@@ -48,8 +48,8 @@ static void glfw_error_callback(int error, const char* description) {
 //=============================================================================
 //=============================================================================
 //=============================================================================
-png::GUI::GUI(RenderData& pram_renderData) : renderData(pram_renderData) {
-  Init(pram_renderData);
+png::GUI::GUI(Renderer& _renderer) : renderer(_renderer) {
+  Init(_renderer);
 }
 
 //=============================================================================
@@ -94,8 +94,8 @@ static bool ImGuiComboUI(const std::string& caption, std::string& current_item,
 //=============================================================================
 //=============================================================================
 //=============================================================================
-void png::GUI::Init(RenderData& pram_renderData) {
-  this->renderData = pram_renderData;
+void png::GUI::Init(Renderer& _renderer) {
+  this->renderer = _renderer;
   // Setup window
   glfwSetErrorCallback(glfw_error_callback);
   if (!glfwInit()) {
@@ -185,7 +185,11 @@ void png::GUI::Init(RenderData& pram_renderData) {
 //=============================================================================
 //=============================================================================
 //=============================================================================
-void png::GUI::Update() {
+void png::GUI::Update(const std::shared_ptr<RenderTarget> _renderTarget) {
+  //png update
+  renderer.Draw();
+  _renderTarget.get()->Update();
+
   // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -246,7 +250,7 @@ void png::GUI::Update() {
 
     //info
     {
-      renderData.renderTex->sampleCounter;
+      //renderData.renderTex->sampleCounter;
     }
     // window size
     {
@@ -256,21 +260,21 @@ void png::GUI::Update() {
     // texutre
     {
       //ImGui::SliderFloat("Texture Size", &textureSize, 0.01f, 10.0f);
-      static int width = renderData.renderTex->width;
+      static int width = _renderTarget.get()->GetWidth();
       if (ImGui::InputInt("Width", &width, 10, 100)) {
-        renderData.SetRenderResolution(width);
+        _renderTarget.get()->SetResolution(width);
       }
-      static int tmp_superSampling = renderData.renderTex->superSampling;
-      if (ImGui::InputInt("Super Sampling", &tmp_superSampling, 1, 10)) {
-        renderData.renderTex->superSampling = tmp_superSampling;
-      }
+      /*static int _superSampling = _renderer.GetSuperSampling();
+      if (ImGui::InputInt("Super Sampling", &_superSampling, 1, 10)) {
+        renderer.SetSuperSampling(_superSampling);
+      }*/
     }
     // camera type
     {
       const char* items[] = { "Path Tracing","Primal Ray Tracing","Lambert Diffuse" };
       static int item_current = 0;
       if (ImGui::Combo("combo", &item_current, items, sizeof(items) / sizeof(char*))) {
-        renderData.cam.type = item_current;
+        renderer.SetCameraType(item_current);
       }
     }
     // hoge 
@@ -284,17 +288,17 @@ void png::GUI::Update() {
     //camera origin
     {
       // Axis-aligned param
-      png::vec3 org = renderData.cam.origin;
+      png::vec3 org = renderer.GetCameraOrigin();
       float vec3[3] = { org.x, org.y, org.z };
       if (ImGui::InputFloat3("Camera Origin", vec3)) {
-        Camera cam = renderData.cam;
-        cam.origin.x = vec3[0];
-        cam.origin.y = vec3[1];
-        cam.origin.z = vec3[2];
-        renderData.SetCam(cam);
+        png::vec3 _org;
+        _org.x = vec3[0];
+        _org.y = vec3[1];
+        _org.z = vec3[2];
+        renderer.SetCameraOrigin(_org);
       }
 
-      // degree param
+      //// degree param
       const float length = std::sqrtf(org.x * org.x + org.y * org.y + org.z * org.z);
       float tmp_cal = 0.0f;
       {
@@ -320,35 +324,72 @@ void png::GUI::Update() {
         if (-0.001f <= thetaPI && phiPI <= 0.001f) {
           phiPI = 0.001f;
         }
-        png::vec3 hoge = png::vec3(
+        png::vec3 _org = png::vec3(
           std::sinf(thetaPI) * std::sinf(phiPI),
           std::cosf(thetaPI),
           std::sinf(thetaPI) * std::cosf(phiPI)
         ) * theta[2];
-        Camera cam = renderData.cam;
-        cam.origin = hoge;
-        renderData.SetCam(cam);
+        renderer.SetCameraOrigin(_org);
       }
     }
 
     //camera target
     {
-      png::vec3 target = renderData.cam.target;
+      /*png::vec3 target = renderer.GetCameraTarget();
       float vec3[3] = { target.x, target.y, target.z };
       if (ImGui::InputFloat3("Camera Target", vec3)) {
-        renderData.cam.target = png::vec3(vec3[0], vec3[1], vec3[2]);
-      }
+        renderer.SetCameraTarget(png::vec3(vec3[0], vec3[1], vec3[2]));
+      }*/
     }
 
     //camera fov
     {
-      if (ImGui::SliderFloat("Camera FOV", &renderData.cam.fov, 0.0f, 10.0f)) {
+      float fov = renderer.GetCameraFov();
+      if (ImGui::SliderFloat("Camera FOV", &fov, 0.0f, 10.0f)) {
+        renderer.SetCameraFov(fov);
+      }
+    }
+
+    // camera lens type
+    {
+      if (renderer.GetCameraLensType() == typeid(ThinLens*)) {
+        static float aperture = 0.1f;
+        if (ImGui::SliderFloat("Aperture", &aperture, 0.0f, 1.0f)) {
+          renderer.SetCameraAperture(aperture);
+        }
+      }
+    }
+
+    // camera forcal distance (when thin lens)
+    {
+      if (renderer.GetCameraLensType() == typeid(ThinLens*)) {
+        static float forcalDis = 0.0f;
+        if (ImGui::SliderFloat("Camera Forcal Distance", &forcalDis, 0.0001f, 10.0f)) {
+          renderer.SetCameraForcalDis(forcalDis);
+        }
+      }
+    }
+
+    // camera aperture type
+    {
+      const char* items[] = { "ApertureDisk","Aperture Polygon Rejection", "Aperture Rectangle" };
+      static int item_current = 0;
+      if (ImGui::Combo("Camera Aperture Type", &item_current, items, sizeof(items) / sizeof(char*))) {
+        if (item_current == 0) {
+          renderer.SetCameraApertureType(typeid(ApertureDisk*));
+        } else if (item_current == 1) {
+          renderer.SetCameraApertureType(typeid(AperturePolygonRejection*));
+        } else if (item_current == 2) {
+          renderer.SetCameraApertureType(typeid(ApertureRectangle*));
+        }
       }
     }
 
     //scene light multiply
     {
-      if (ImGui::SliderFloat("Scene light multiply", &renderData.scene.sceneLight.multiply, 0.0f, 10.0f)) {
+      float li = renderer.GetSceneLightIntensity();
+      if (ImGui::SliderFloat("Scene light Luminous Intensity", &li, 0.0f, 10.0f)) {
+        renderer.SetSceneLightIntensity(li);
       }
     }
 
@@ -377,14 +418,47 @@ void png::GUI::Update() {
         static int image_res = 0;
         ImGui::InputInt("Writed Image Resolution", &image_res);
         static int superSampling = 0;
-        //ImGui::InputInt("Super Sampling", &superSampling);
-        static char fileName[10] = "Hoge.png";
+        ImGui::InputInt("Super Sampling", &superSampling);
+        static char fileName[10] = "Hoge";
         ImGui::InputText("Image File Name", fileName, IM_ARRAYSIZE(fileName));
         if (ImGui::Button("Write Image")) {
-          RenderData tmpData(image_res, renderData.cam, renderData.scene);
-          tmpData.renderer->Draw();
-          tmpData.renderTex->Update();
-          tmpData.renderTex->WriteImage(fileName);
+          Renderer tmp_renderer(renderer);
+          tmp_renderer.SetSuperSampling(superSampling);
+          std::shared_ptr<RenderTarget> tmp_renderTarget(std::make_shared<RenderTarget>(image_res, image_res));
+          tmp_renderer.SetRenderTarget(tmp_renderTarget);
+          std::cout << "Rendering... [Resolustion : " << image_res << " , SuperSampling : " << superSampling << "]" << std::endl;
+          tmp_renderer.Draw();
+          tmp_renderTarget.get()->Update();
+          std::string fileNameJPG = std::string(fileName) + std::string(".png");
+          tmp_renderTarget.get()->WriteImage(fileNameJPG.c_str());
+        }
+
+        //debug for aperture type
+        {
+          if (ImGui::Button("Save All Aperture Type")) {
+            for (int i = 0; i < 3; ++i) {
+              Renderer tmp_renderer(renderer);
+              tmp_renderer.SetSuperSampling(superSampling);
+              std::shared_ptr<RenderTarget> tmp_renderTarget(std::make_shared<RenderTarget>(image_res, image_res));
+              tmp_renderer.SetRenderTarget(tmp_renderTarget);
+              std::string fileName;
+              if (i == 0) {
+                fileName = "disk";
+                tmp_renderer.SetCameraApertureType(typeid(ApertureDisk*));
+              } else if (i == 1) {
+                fileName = "polygon";
+                tmp_renderer.SetCameraApertureType(typeid(AperturePolygonRejection*));
+              } else if (i == 2) {
+                fileName = "rectangle";
+                tmp_renderer.SetCameraApertureType(typeid(ApertureRectangle*));
+              }
+              std::cout << "Rendering... [Resolustion : " << image_res << " , SuperSampling : " << superSampling << "]" << std::endl;
+              tmp_renderer.Draw();
+              tmp_renderTarget.get()->Update();
+              std::string fileNameJPG = std::string(fileName) + std::string(".png");
+              tmp_renderTarget.get()->WriteImage(fileNameJPG.c_str());
+            }
+          }
         }
       }
 
@@ -395,127 +469,126 @@ void png::GUI::Update() {
   ///
   // scene setting window
   /// 
+  //{
+  //  if (SceneSettingWindow) {
+  //    ImGui::Begin("Scene Setting");
+  //    std::vector<std::shared_ptr<SceneObject>>& sceneObjectList = renderData.scene.list;
+  //    for (size_t i = 0; i < sceneObjectList.size(); ++i) {
+  //      SceneObject* obj = sceneObjectList[i].get();
+  //      if (ImGui::TreeNode((void*)(intptr_t)i, "Box %d", i)) {
+  //        // object type changing
+  //        //hoge
+
+  //        // position changing (Box)
+  //        {
+  //          if (dynamic_cast<Box*>(sceneObjectList[i].get()) != NULL) {
+  //            const std::string title = "Position" + std::to_string(i);
+  //            Box* objBox = (Box*)obj;
+  //            float val[3]{ objBox->offset.x,objBox->offset.y,objBox->offset.z };
+  //            if (ImGui::InputFloat3(title.c_str(), val)) {
+  //              objBox->offset.x = val[0];
+  //              objBox->offset.y = val[1];
+  //              objBox->offset.z = val[2];
+  //            }
+  //          }
+  //        }
+
+  //        // Material
+  //        {
+  //          // Material Type
+  //          {
+  //            std::vector<std::string> items{ "MaterialReflect" };
+  //            static std::string current;
+  //            if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
+  //              current = items[0];
+  //            }
+  //            if (ImGuiComboUI("Material", current, items)) {
+  //              delete obj->material;
+  //              // Reflect
+  //              if (current == items[0]) {
+  //                obj->material = new MaterialReflect(vec3{ 1.0f,1.0f,1.0f }, 0.5f, 0.0f);
+  //              }
+  //            }
+  //          }
+
+  //          // Material RGB
+  //          {
+  //            if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
+  //              MaterialReflect* mat = (MaterialReflect*)obj->material;
+  //              static float val[3]{ mat->color.x,mat->color.y,mat->color.z };
+  //              if (ImGui::ColorEdit3("color", val)) {
+  //                mat->color.x = val[0];
+  //                mat->color.y = val[1];
+  //                mat->color.z = val[2];
+  //              }
+  //            }
+  //          }
+
+  //          //Material kd
+  //          {
+  //            if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
+  //              MaterialReflect* mat = (MaterialReflect*)obj->material;
+  //              static float val{ mat->kd };
+  //              if (ImGui::SliderFloat("kd", &val, 0.0f, 1.0f)) {
+  //                mat->kd = val;
+  //              }
+  //            }
+  //          }
+
+  //          //Material emission
+  //          {
+  //            if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
+  //              MaterialReflect* mat = (MaterialReflect*)obj->material;
+  //              if (ImGui::SliderFloat("emission", &mat->emission, 0.0f, 1.0f)) {
+  //              }
+  //            }
+  //          }
+
+  //          //Material specular ratio
+  //          {
+  //            if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
+  //              MaterialReflect* mat = (MaterialReflect*)obj->material;
+  //              if (ImGui::SliderFloat("supecular ratio", &mat->supecularRatio, 0.0f, 1.0f)) {
+  //              }
+  //            }
+  //          }
+
+  //        }
+
+
+  //        ImGui::TreePop();
+  //      }
+  //    }
+  //    ImGui::AlignTextToFramePadding();
+  //    ImGui::Text("Scene Object:");
+  //    ImGui::SameLine();
+
+  //    // Arrow buttons with Repeater
+  //    float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+  //    ImGui::PushButtonRepeat(true);
+  //    if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
+  //      if (sceneObjectList.size() > 0) {
+  //        sceneObjectList.erase(sceneObjectList.end() - 1);
+  //      }
+  //    }
+  //    ImGui::SameLine(0.0f, spacing);
+  //    if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
+  //      sceneObjectList.emplace_back(
+  //        std::make_shared<Box>(Box{ vec3{},new MaterialReflect(vec3{1.0f,1.0f,1.0f},0.5f,0.0f) })
+  //      );
+  //    }
+  //    ImGui::PopButtonRepeat();
+  //    ImGui::SameLine();
+  //    ImGui::Text("%d", sceneObjectList.size());
+
+  //    ImGui::End();
+  //  }
+  //}
+
   {
-    if (SceneSettingWindow) {
-      ImGui::Begin("Scene Setting");
-      std::vector<std::shared_ptr<SceneObject>>& sceneObjectList = renderData.scene.list;
-      for (size_t i = 0; i < sceneObjectList.size(); ++i) {
-        SceneObject* obj = sceneObjectList[i].get();
-        if (ImGui::TreeNode((void*)(intptr_t)i, "Box %d", i)) {
-          // object type changing
-          //hoge
-
-          // position changing (Box)
-          {
-            if (dynamic_cast<Box*>(sceneObjectList[i].get()) != NULL) {
-              const std::string title = "Position" + std::to_string(i);
-              Box* objBox = (Box*)obj;
-              float val[3]{ objBox->offset.x,objBox->offset.y,objBox->offset.z };
-              if (ImGui::InputFloat3(title.c_str(), val)) {
-                objBox->offset.x = val[0];
-                objBox->offset.y = val[1];
-                objBox->offset.z = val[2];
-              }
-            }
-          }
-
-          // Material
-          {
-            // Material Type
-            {
-              std::vector<std::string> items{ "MaterialReflect" };
-              static std::string current;
-              if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
-                current = items[0];
-              }
-              if (ImGuiComboUI("Material", current, items)) {
-                delete obj->material;
-                // Reflect
-                if (current == items[0]) {
-                  obj->material = new MaterialReflect(vec3{ 1.0f,1.0f,1.0f }, 0.5f, 0.0f);
-                }
-              }
-            }
-
-            // Material RGB
-            {
-              if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
-                MaterialReflect* mat = (MaterialReflect*)obj->material;
-                static float val[3]{ mat->color.x,mat->color.y,mat->color.z };
-                if (ImGui::ColorEdit3("color", val)) {
-                  mat->color.x = val[0];
-                  mat->color.y = val[1];
-                  mat->color.z = val[2];
-                }
-              }
-            }
-
-            //Material kd
-            {
-              if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
-                MaterialReflect* mat = (MaterialReflect*)obj->material;
-                static float val{ mat->kd };
-                if (ImGui::SliderFloat("kd", &val, 0.0f, 1.0f)) {
-                  mat->kd = val;
-                }
-              }
-            }
-
-            //Material emission
-            {
-              if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
-                MaterialReflect* mat = (MaterialReflect*)obj->material;
-                if (ImGui::SliderFloat("emission", &mat->emission, 0.0f, 1.0f)) {
-                }
-              }
-            }
-
-            //Material specular ratio
-            {
-              if (dynamic_cast<MaterialReflect*>(obj->material) != NULL) {
-                MaterialReflect* mat = (MaterialReflect*)obj->material;
-                if (ImGui::SliderFloat("supecular ratio", &mat->supecularRatio, 0.0f, 1.0f)) {
-                }
-              }
-            }
-
-          }
-
-
-          ImGui::TreePop();
-        }
-      }
-      ImGui::AlignTextToFramePadding();
-      ImGui::Text("Scene Object:");
-      ImGui::SameLine();
-
-      // Arrow buttons with Repeater
-      float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
-      ImGui::PushButtonRepeat(true);
-      if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
-        if (sceneObjectList.size() > 0) {
-          sceneObjectList.erase(sceneObjectList.end() - 1);
-        }
-      }
-      ImGui::SameLine(0.0f, spacing);
-      if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
-        sceneObjectList.emplace_back(
-          std::make_shared<Box>(Box{ vec3{},new MaterialReflect(vec3{1.0f,1.0f,1.0f},0.5f,0.0f) })
-        );
-      }
-      ImGui::PopButtonRepeat();
-      ImGui::SameLine();
-      ImGui::Text("%d", sceneObjectList.size());
-
-      ImGui::End();
-    }
-  }
-
-  {
-    png::RenderTarget* renderTarget = renderData.renderTex;
     ImGui::Begin("OpenGL Texture Text");
-    ImGui::Text("size = %d x %d", renderTarget->width, renderTarget->height);
-    ImGui::Image((void*)(intptr_t)(*(renderTarget->image_id)), ImVec2(window_size, window_size));
+    //ImGui::Text("size = %d x %d", renderer.GetRenderResolution(), renderer.GetRenderResolution());
+    ImGui::Image((void*)(intptr_t)(*(_renderTarget.get()->GetImageID_ptr())), ImVec2(window_size, window_size));
     ImGui::End();
   }
 

@@ -261,9 +261,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\imgui\imgui_demo.cpp" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\imgui\imgui_draw.cpp" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\RenderTarget.cpp" />
-    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\RenderTarget.h" />
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\InitOpenGL.h" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\Singleton.h" />
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\aperture.h" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.h" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\gui.cpp" />
@@ -273,6 +273,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\random.h" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\ray.h" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\renderData.h" />
+    <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\renderTarget.cpp" />
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\renderTarget.h" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\renderer.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\renderer.h" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\sceneData.h" />

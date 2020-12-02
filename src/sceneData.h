@@ -142,11 +142,18 @@ namespace png {
   class Scene {
   private:
     int polygonCounter;
-  public:
     std::vector<std::shared_ptr<SceneObject>> list;
     SceneLight sceneLight;
-    Scene() : polygonCounter(0) {}
-
+  public:
+    Scene(std::vector<std::shared_ptr<SceneObject>> _list, SceneLight _sceneLight)
+      : polygonCounter(0)
+      , list(_list)
+      , sceneLight(_sceneLight) {
+    }
+    Scene()
+      :polygonCounter(0) {
+    }
+  public:
     void GetVertex(std::vector<vec3>& geometryList, std::vector<std::vector<unsigned int>>& polygonIndex) {
       int counterIndex = 0;
       for (int i = 0; i < list.size(); ++i) {
@@ -172,6 +179,16 @@ namespace png {
     }
     Material* GetMaterial(int index) {
       return list[GetP2O(index)]->material;
+    }
+
+    //Get
+    SceneLight& GetSceneLight() { return sceneLight; }
+    //Set
+    void SetSceneList(std::vector<std::shared_ptr<SceneObject>> _list) {
+      list = _list;
+    }
+    void SetSceneLight(SceneLight _sceneLight) {
+      sceneLight = _sceneLight;
     }
   };
 }

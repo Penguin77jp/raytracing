@@ -36,7 +36,6 @@ png::RenderTarget::RenderTarget(const uint16_t w, const uint16_t h)
   : width(w), height(h),
   image_id(nullptr),
   sampleCounter(0),
-  superSampling(1),
   image_dataF(4 * width * height, 0.0f),
   image_data(image_dataF.size(), 0) {
 
@@ -57,6 +56,15 @@ png::RenderTarget::RenderTarget(const uint16_t w, const uint16_t h)
   image_id = new GLuint(image_texture);
 }
 
+png::RenderTarget::RenderTarget(const RenderTarget& _renderTarget)
+  : width(_renderTarget.width)
+  , height(_renderTarget.height)
+  , image_id(nullptr)
+  , sampleCounter(0)
+  , image_dataF(4 * width * height, 0.0f)
+  , image_data(image_dataF.size(), 0) {
+}
+
 void png::RenderTarget::Update() {
   glDeleteTextures(1, image_id);
   delete image_id;
@@ -72,7 +80,7 @@ void png::RenderTarget::Update() {
     }
     //image_data[i] = (unsigned char)(255 * val);
     image_data[i] = (unsigned char)(255 * std::pow(val, 1.0f / 2.2f));
-  }
+}
 
   // Create a OpenGL texture identifier
   GLuint image_texture;

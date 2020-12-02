@@ -8,21 +8,19 @@
 
 namespace png {
   class SceneLight {
-  public:
-    float multiply;
-
   private:
+    float intensity;
     vec3* ambientLight;
     Texture* enviromentLight;
 
   public:
-    SceneLight(float mul = 1.0f) : multiply(mul), ambientLight(nullptr), enviromentLight(nullptr) {}
-    SceneLight(vec3* col, float mul = 1.0f) : multiply(mul), ambientLight(col), enviromentLight(nullptr) {}
-    SceneLight(Texture* tex, float mul = 1.0f) : multiply(mul), ambientLight(nullptr), enviromentLight(tex) {}
+    SceneLight(float _inten = 1.0f) : intensity(_inten), ambientLight(nullptr), enviromentLight(nullptr) {}
+    SceneLight(vec3* _col, float _inten = 1.0f) : intensity(_inten), ambientLight(_col), enviromentLight(nullptr) {}
+    SceneLight(Texture* _tex, float _inten = 1.0f) : intensity(_inten), ambientLight(nullptr), enviromentLight(_tex) {}
 
     vec3 GetColor(vec3 dir) {
       if (ambientLight != nullptr) {
-        return *ambientLight * multiply;
+        return *ambientLight * intensity;
       } else if (enviromentLight != nullptr) {
         const float length = std::sqrtf(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
         double theta = std::acosf(dir.y / length);
@@ -35,11 +33,13 @@ namespace png {
         if (std::isnan(theta01) || std::abs(theta01 - 1.0f) < 1.0e-10f) {
           theta01 = 0;
         }
-        return enviromentLight->GetColor(enviromentLight->width * phi01, enviromentLight->height * theta01) * multiply;
+        return enviromentLight->GetColor(enviromentLight->width * phi01, enviromentLight->height * theta01) * intensity;
       } else {
         return vec3{};
       }
     }
 
+    //Get
+    float GetIntensity() { return intensity; }
   };
 }

@@ -22,9 +22,6 @@
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\RenderTarget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -32,6 +29,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\renderTarget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\renderer.cpp">
@@ -42,10 +42,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\RenderTarget.h">
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\InitOpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\Singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\aperture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.h">
@@ -64,6 +67,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\renderData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\renderTarget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\renderer.h">
