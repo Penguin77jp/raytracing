@@ -1,7 +1,7 @@
 
 #include "random.h"
 #include "ray.h"
-#include "texture.h"
+#include "bluenoise.h"
 
 #include <cmath>
 #include <numbers>
@@ -87,7 +87,7 @@ namespace png {
 
   class AperturePolygonBlue : public Aperture {
   private:
-    Texture blue;
+    BlueNoiseSampler blue;
     int GetIndex(int index, int size) {
       if (index >= size) {
         index -= size;
@@ -118,16 +118,19 @@ namespace png {
         coner.push_back(cal);
       }
 
-      double x = _rand.next01();
+      double blue_x = _rand.next01();
+      const unsigned int polygonIndex = (unsigned int)(blue_x * polygon);
+      double x = blue_x * polygon - polygonIndex;
       double y = _rand.next01();
-      const vec3 offset = blue.GetColor(x, y);
-      double xo = offset.x;
-      double yo = offset.y;
+      double blue_y = y / polygonIndex;
+      const vec3 offset = blue.Sample(blue_x, blue_y);
 
-      const unsigned int index = (unsigned int)(x * polygon);
+      vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
+      vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
 
+      vec3 triVec = Square2triangle(vec3(x, y, 0));
 
-      return vec3();
+      return vec_a * triVec.x + vec_b * triVec.y;
     }
   };
 }

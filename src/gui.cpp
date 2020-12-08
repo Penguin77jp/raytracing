@@ -460,6 +460,27 @@ void png::GUI::Update(const std::shared_ptr<RenderTarget> _renderTarget) {
             }
           }
         }
+
+        //debug for all resolustion
+        {
+          if (ImGui::Button("Save All SuperSampling")) {
+            constexpr int target = 2000;
+            constexpr int N = 10;
+            for (int i = 1; i <= N; ++i) {
+              const int size = (double)i / N * target;
+              Renderer tmp_renderer(renderer);
+              tmp_renderer.SetSuperSampling(size);
+              std::shared_ptr<RenderTarget> tmp_renderTarget(std::make_shared<RenderTarget>(image_res, image_res));
+              tmp_renderer.SetRenderTarget(tmp_renderTarget);
+              std::string fileName = "s";
+              std::cout << "Rendering... [Resolustion : " << image_res << " , SuperSampling : " << superSampling << "]" << std::endl;
+              tmp_renderer.Draw();
+              tmp_renderTarget.get()->Update();
+              std::string fileNameJPG = std::string(fileName) + std::to_string(size) + std::string(".png");
+              tmp_renderTarget.get()->WriteImage(fileNameJPG.c_str());
+            }
+          }
+        }
       }
 
       ImGui::End();

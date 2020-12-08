@@ -23,8 +23,8 @@ namespace png {
         return *ambientLight * intensity;
       } else if (enviromentLight != nullptr) {
         const float length = std::sqrtf(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
-        double theta = std::acosf(dir.y / length);
-        double phi = dir.x / std::abs(dir.x) * std::acosf(dir.z / std::sqrtf(dir.z * dir.z + dir.x * dir.x));
+        double theta = std::acos(dir.y / length);
+        double phi = dir.x / std::abs(dir.x) * std::acos(dir.z / std::sqrtf(dir.z * dir.z + dir.x * dir.x));
         double theta01 = theta / std::numbers::pi;
         double phi01 = phi / std::numbers::pi * 0.5f + 0.5f;
         if (std::isnan(phi01) || std::abs(phi01 - 1.0f) < 1.0e-10f) {

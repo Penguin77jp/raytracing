@@ -40,6 +40,7 @@
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\bluenoise.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\InitOpenGL.h">
@@ -49,6 +50,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\aperture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\bluenoise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.h">

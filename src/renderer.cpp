@@ -12,7 +12,7 @@ namespace {
   constexpr float FLOAT_INFINITY = std::numeric_limits<float>::max();
 
   struct Vertex {
-    float x, y, z;
+    double x, y, z;
   };
 
   struct PolygonIndex {
@@ -75,7 +75,7 @@ png::Renderer::Renderer(Camera* _cam, const std::shared_ptr<RenderTarget> _rende
 }
 
 png::Renderer::Renderer(const Renderer& _renderer)
-  : Renderer(_renderer.cam,_renderer.renderTarget, _renderer.scene) {
+  : Renderer(_renderer.cam, _renderer.renderTarget, _renderer.scene) {
 }
 
 
@@ -152,7 +152,10 @@ png::vec3 png::Renderer::PrimalRayTracing(RTCRayHit& rayhit) {
     return png::vec3{ };
   }
 
-  return scene.GetMaterial(rayhit.hit.primID)->GetColor() * std::clamp(vec3::Dot(vec3(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z), vec3(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z)), 0.0f, 1.0f);
+  return scene.GetMaterial(rayhit.hit.primID)->GetColor() *
+    std::clamp(vec3::Dot(vec3(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z),
+                         vec3(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z))
+               , 0.0, 1.0);
 }
 
 png::vec3 png::Renderer::LambertDiffuse(RTCRayHit& rayhit) {

@@ -12,7 +12,8 @@ namespace png {
   public:
     Texture(const char* fileName);
     Texture(std::vector<unsigned char>& data, unsigned int width, unsigned int height);
-    vec3 GetColor(float x, float y);
+    vec3 GetColor(double x, double y);
+    vec3 GetColorLerp(double x, double y);
     void WriteImage(const char* fileName);
   private :
     vec3 GetColorInt(int x, int y);

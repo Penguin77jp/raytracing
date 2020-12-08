@@ -14,7 +14,7 @@ png::Texture::Texture(const char* fileName) {
 }
 
 png::Texture::Texture(std::vector<unsigned char>& data, unsigned int width, unsigned int height)
-  :width(width),height(height), bpp(data.size() / width / height),image_data(&data[0]) {
+  :width(width), height(height), bpp(data.size() / width / height), image_data(&data[0]) {
   std::cout << width << " , " << height << " , " << bpp << std::endl;
 }
 
@@ -41,7 +41,11 @@ png::vec3 png::Texture::GetColorInt(int x, int y) {
   return png::vec3(std::powf(val.x, l_pow), std::powf(val.y, l_pow), std::powf(val.z, l_pow));
 }
 
-png::vec3 png::Texture::GetColor(float x, float y) {
+png::vec3 png::Texture::GetColor(double x, double y) {
+  return GetColorInt(GetIndexX(x), GetIndexY(y));
+}
+
+png::vec3 png::Texture::GetColorLerp(double x, double y) {
   png::vec3 val00 = GetColorInt(GetIndexX(x), GetIndexY(y));
   png::vec3 val10 = GetColorInt(GetIndexX(x + 1), GetIndexY(y));
   png::vec3 val01 = GetColorInt(GetIndexX(x), GetIndexY(y + 1));
@@ -51,7 +55,6 @@ png::vec3 png::Texture::GetColor(float x, float y) {
   const float weight_y = y - (int)y;
   png::vec3 val = val00 * (1.0f - weight_x) * (1.0f - weight_y) + val10 * weight_x * (1.0f - weight_y)
     + val01 * (1.0f - weight_x) * weight_y + val11 * weight_x * weight_y;
-  //val = val00;
 
   return val;
 }
