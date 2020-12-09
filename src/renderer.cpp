@@ -12,7 +12,7 @@ namespace {
   constexpr float FLOAT_INFINITY = std::numeric_limits<float>::max();
 
   struct Vertex {
-    double x, y, z;
+    float x, y, z;
   };
 
   struct PolygonIndex {
@@ -38,7 +38,7 @@ png::Renderer::Renderer(Camera* _cam, const std::shared_ptr<RenderTarget> _rende
   std::vector<PolygonIndex> geometryPolygons;
 
   for (int i = 0; i < vec_geometoryList.size(); ++i) {
-    geometryVertices.push_back({ vec_geometoryList[i].x,vec_geometoryList[i].y,vec_geometoryList[i].z });
+    geometryVertices.push_back({ (float)vec_geometoryList[i].x,(float)vec_geometoryList[i].y,(float)vec_geometoryList[i].z });
   }
 
   rtcSetSharedGeometryBuffer(geometryHandle,
