@@ -92,7 +92,7 @@ void Init_NiceScene(png::Scene& scene) {
 
 void Init_DOF(png::Scene& scene) {
   std::vector<std::shared_ptr<png::SceneObject>> list;
-  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},1.0f,1.0f),10.0f }));
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},1.0f,1.0f),1.0f }));
   scene.SetSceneList(list);
 
   png::SceneLight sceneLight = png::SceneLight(
@@ -102,6 +102,9 @@ void Init_DOF(png::Scene& scene) {
 }
 
 int main(int, char**) {
+  png::AperturePolygonBlue hoge(3);
+  hoge.CheckBluePoint(200,10000000);
+  return 0;
   InitOpenGL_Loader();
   constexpr int size = 100;
 
@@ -115,7 +118,7 @@ int main(int, char**) {
     png::vec3{ +0.0,+0.0,+0.0 },
     0,
     0.4,
-    new png::AperturePolygonBlue(),
+    new png::AperturePolygonBlue(6),
     0.1f,
     1.9f
   );

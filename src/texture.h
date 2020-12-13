@@ -4,6 +4,10 @@
 #include <vector>
 
 namespace png {
+  enum class LoadTextureType {
+    Normal, GammmaCorrection,
+  };
+
   class Texture {
   public:
     int width, height, bpp;
@@ -12,11 +16,11 @@ namespace png {
   public:
     Texture(const char* fileName);
     Texture(std::vector<unsigned char>& data, unsigned int width, unsigned int height);
-    vec3 GetColor(double x, double y);
-    vec3 GetColorLerp(double x, double y);
-    void WriteImage(const char* fileName);
+    vec3 GetColor(double x, double y, const LoadTextureType _loadTextureType);
+    vec3 GetColorLerp(double x, double y, const LoadTextureType _loadTextureType);
+    void WriteImage(const char* fileName, const LoadTextureType _loadTextureType = LoadTextureType::GammmaCorrection);
   private :
-    vec3 GetColorInt(int x, int y);
+    vec3 GetColorInt(int x, int y, const LoadTextureType _loadTextureType);
     int GetIndexX(int x);
     int GetIndexY(int y);
   };

@@ -9,7 +9,7 @@ png::vec3 png::BlueNoiseSampler::Sample(double x, double y) {
   const int height = blueNoise.height;
   const int indexX = (int)width * x;
   const int indexY = (int)height * y;
-  const vec3 col = blueNoise.GetColor(x, y);
+  const vec3 col = blueNoise.GetColor(x, y, LoadTextureType::Normal);
 
-  return vec3((indexX + col.x) / width, (indexY + col.y) / height, 0);
+  return vec3((int)x + col.x, (int)y + col.y, 0);
 }

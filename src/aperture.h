@@ -88,6 +88,127 @@ namespace png {
   class AperturePolygonBlue : public Aperture {
   private:
     BlueNoiseSampler blue;
+    std::vector<vec3> coner;
+    unsigned int polygon;
+    int GetIndex(int index, int size) {
+      if (index >= size) {
+        index -= size;
+      }
+      return index;
+    }
+    vec3 Square2triangle(vec3 _input) {
+      vec3 cal = _input;
+      //std::cout << "Input :" << std::string(_input) << std::endl;
+      if (_input.y > _input.x) {
+        cal.x *= 0.5f;
+        cal.y -= cal.x;
+      } else {
+        cal.y *= 0.5f;
+        cal.x -= cal.y;
+      }
+      return cal;
+    }
+  public:
+    AperturePolygonBlue(unsigned int _polygon)
+      : blue(Texture("LDR_RG01_23.png"))
+      , polygon(_polygon) {
+      for (int i = 0; i < polygon; ++i) {
+        double deg = 2.0 * std::numbers::pi * i / polygon;
+        vec3 cal = vec3(std::cos(deg), std::sin(deg), 0);
+        coner.push_back(cal);
+      }
+    }
+    vec3 Sample(Random& _rand) override {
+      double blue_x = _rand.next01();
+      const unsigned int polygonIndex = (unsigned int)(blue_x * polygon);
+      double x = blue_x * polygon - polygonIndex;
+      double y = _rand.next01();
+      double blue_y = y / polygon;
+      const vec3 offseted = blue.Sample(blue_x, blue_y);
+
+      vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
+      vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
+
+      vec3 triVec = Square2triangle(vec3(x, y, 0));
+
+      return vec_a * triVec.x + vec_b * triVec.y;
+    }
+    void CheckBluePoint(unsigned int _size, int _pointNum) {
+      Random _rand(0);
+      constexpr unsigned int bpp = 3;
+      std::vector<unsigned char> data(_size * _size * bpp, 255);
+      for (int i = 0; i < _pointNum; ++i) {
+        const double randX = _rand.next01();
+        //const double randX = 0.246;
+        const double blue_x = randX * blue.GetTextureSize();
+        const unsigned int polygonIndex = (unsigned int)(randX * polygon);
+        const double randY = _rand.next01();
+        //const double randY = 0.98;
+        const double blue_y = randY * blue.GetTextureSize() / polygon;
+        const vec3 offseted = blue.Sample(blue_x, blue_y);
+
+        vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
+        //vec3& vec_a = coner[0];
+        vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
+        //vec3& vec_b = coner[1];
+
+        vec3 triVec = Square2triangle(vec3(blue_x / polygon - (int)(blue_x / polygon), offseted.y * polygon / blue.GetTextureSize(), 0));
+        vec3 point = vec_a * triVec.x + vec_b * triVec.y;
+        const int indexX = (point.x * 0.5 + 0.5) * (_size - 1);
+        const int indexY = (point.y * 0.5 + 0.5) * (_size - 1);
+        data[indexX * bpp + indexY * _size * bpp] = 0;
+        data[indexX * bpp + indexY * _size * bpp + 1] = 0;
+        data[indexX * bpp + indexY * _size * bpp + 2] = 0;
+      }
+      Texture hoge(data, _size, _size);
+      hoge.WriteImage("CheckBluePoint.png");
+    }
+  };
+
+  class AperturePolygonSquare : public Aperture {
+  private:
+    BlueNoiseSampler blue;
+    std::vector<vec3> coner;
+    unsigned int polygon;
+    int GetIndex(int index, int size) {
+      if (index >= size) {
+        index -= size;
+      }
+      return index;
+    }
+  public:
+    AperturePolygonSquare(unsigned int _polygon)
+      : blue(Texture("blue.png"))
+      , polygon(_polygon) {
+      for (int i = 0; i < polygon; ++i) {
+        double deg = 2.0 * std::numbers::pi * i / polygon;
+        vec3 cal = vec3(std::cos(deg), std::sin(deg), 0);
+        coner.push_back(cal);
+      }
+    }
+    vec3 Sample(Random& _rand) override {
+      double blue_x = _rand.next01();
+      const unsigned int polygonIndex = (unsigned int)(blue_x * polygon);
+      double x = blue_x * polygon - polygonIndex;
+      double y = _rand.next01();
+      double blue_y = y / polygonIndex;
+      const vec3 offset = blue.Sample(blue_x, blue_y);
+
+      vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
+      vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
+
+      //vec3 P = vec3(std::sqrt(s1) * (s2 * V2 + (1 - s2) * V3);
+
+      //return vec_a * triVec.x + vec_b * triVec.y;
+      return vec3();
+    }
+  };
+
+  class AperturePolygonBlueTest : public Aperture {
+  private:
+    BlueNoiseSampler blue;
+    std::vector<vec3> coner;
+    unsigned int polygon;
     int GetIndex(int index, int size) {
       if (index >= size) {
         index -= size;
@@ -106,24 +227,22 @@ namespace png {
       return cal;
     }
   public:
-    AperturePolygonBlue()
-      : blue(Texture("blue.png")) {
-    }
-    vec3 Sample(Random& _rand) override {
-      constexpr int polygon = 8;
-      std::vector<vec3> coner;
+    AperturePolygonBlueTest(unsigned int _polygon)
+      : blue(Texture("LDR_RG01_23.png"))
+      , polygon(_polygon) {
       for (int i = 0; i < polygon; ++i) {
         double deg = 2.0 * std::numbers::pi * i / polygon;
         vec3 cal = vec3(std::cos(deg), std::sin(deg), 0);
         coner.push_back(cal);
       }
-
+    }
+    vec3 Sample(Random& _rand) override {
       double blue_x = _rand.next01();
       const unsigned int polygonIndex = (unsigned int)(blue_x * polygon);
       double x = blue_x * polygon - polygonIndex;
       double y = _rand.next01();
-      double blue_y = y / polygonIndex;
-      const vec3 offset = blue.Sample(blue_x, blue_y);
+      double blue_y = y / polygon;
+      const vec3 offseted = blue.Sample(blue_x, blue_y);
 
       vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
       vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
@@ -131,6 +250,40 @@ namespace png {
       vec3 triVec = Square2triangle(vec3(x, y, 0));
 
       return vec_a * triVec.x + vec_b * triVec.y;
+    }
+    void CheckBluePoint(int _texSize, int _pointNum) {
+      Texture tmp_blue = Texture("LDR_RG01_23.png");
+      const unsigned int width = _texSize * tmp_blue.width;
+      constexpr unsigned int bpp = 3;
+      std::vector<unsigned char>data(bpp * width * width, 255);
+      Random rand(0);
+      for (int y = 0; y < width; ++y) {
+        for (int x = 0; x < width; ++x) {
+          vec3 hoge = blue.Sample((double)x / _texSize, (double)y / _texSize);
+          const float blue_x01 = hoge.x - (int)(hoge.x);
+          const float blue_y01 = hoge.y - (int)(hoge.y);
+          const vec3 point = vec3(
+            (double)x / _texSize / tmp_blue.width, (double)y / _texSize / tmp_blue.height, 0
+          );
+          const vec3 pointInCell = vec3(
+            (double)x / _texSize - (int)((double)x / _texSize)
+            , (double)y / _texSize - (int)((double)y / _texSize)
+            , 0);
+          const vec3 pointNextInCell = vec3(
+            (double)(x + 1) / _texSize - (int)((double)(x + 1) / _texSize)
+            , (double)(y + 1) / _texSize - (int)((double)(y + 1) / _texSize)
+            , 0);
+          if (pointInCell.x <= blue_x01 && blue_x01 < pointNextInCell.x) {
+            if (pointInCell.y <= blue_y01 && blue_y01 < pointNextInCell.y) {
+              data[x * bpp + y * width * bpp] = 0;
+              data[x * bpp + y * width * bpp + 1] = 0;
+              data[x * bpp + y * width * bpp + 2] = 0;
+            }
+          }
+        }
+      }
+      Texture hoge(data, _texSize * blue.GetTextureSize(), _texSize * blue.GetTextureSize());
+      hoge.WriteImage("CheckBluePoint.png");
     }
   };
 }

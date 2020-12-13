@@ -33,7 +33,7 @@ namespace png {
         if (std::isnan(theta01) || std::abs(theta01 - 1.0f) < 1.0e-10f) {
           theta01 = 0;
         }
-        return enviromentLight->GetColor(enviromentLight->width * phi01, enviromentLight->height * theta01) * intensity;
+        return enviromentLight->GetColor(enviromentLight->width * phi01, enviromentLight->height * theta01,LoadTextureType::GammmaCorrection) * intensity;
       } else {
         return vec3{};
       }
