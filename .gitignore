@@ -5,6 +5,7 @@
 
 CMakeFiles*
 private src*
+Data*
 
 # User-specific files
 *.rsuser

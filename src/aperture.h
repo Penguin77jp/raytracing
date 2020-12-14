@@ -110,7 +110,7 @@ namespace png {
     }
   public:
     AperturePolygonBlue(unsigned int _polygon)
-      : blue(Texture("LDR_RG01_23.png"))
+      : blue(Texture("blue.png"))
       , polygon(_polygon) {
       for (int i = 0; i < polygon; ++i) {
         double deg = 2.0 * std::numbers::pi * i / polygon;
@@ -138,19 +138,15 @@ namespace png {
       constexpr unsigned int bpp = 3;
       std::vector<unsigned char> data(_size * _size * bpp, 255);
       for (int i = 0; i < _pointNum; ++i) {
-        const double randX = _rand.next01();
-        //const double randX = 0.246;
+        const double randX = _rand.next01()/polygon;
         const double blue_x = randX * blue.GetTextureSize();
         const unsigned int polygonIndex = (unsigned int)(randX * polygon);
         const double randY = _rand.next01();
-        //const double randY = 0.98;
         const double blue_y = randY * blue.GetTextureSize() / polygon;
         const vec3 offseted = blue.Sample(blue_x, blue_y);
 
         vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
-        //vec3& vec_a = coner[0];
         vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
-        //vec3& vec_b = coner[1];
 
         vec3 triVec = Square2triangle(vec3(blue_x / polygon - (int)(blue_x / polygon), offseted.y * polygon / blue.GetTextureSize(), 0));
         vec3 point = vec_a * triVec.x + vec_b * triVec.y;
