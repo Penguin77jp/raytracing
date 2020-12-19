@@ -20,22 +20,24 @@ png::Texture::Texture(std::vector<unsigned char>& data, unsigned int width, unsi
 
 int png::Texture::GetIndexX(int x) {
   if (x >= width) {
+    std::cout << "over x" << std::endl;
     return width - 1;
   }
   return x;
 }
 int png::Texture::GetIndexY(int y) {
   if (y >= height) {
+    std::cout << "over y" << std::endl;
     return height - 1;
   }
   return y;
 }
 
-png::vec3 png::Texture::GetColorInt(int x, int y, const LoadTextureType _loadTextureType) {
+png::vec3 png::Texture::GetColorData(int x, int y, const LoadTextureType _loadTextureType) {
   png::vec3 val = png::vec3(
-    image_data[x * bpp + y * width * bpp] / 255.0f,
-    image_data[x * bpp + y * width * bpp + 1] / 255.0f,
-    image_data[x * bpp + y * width * bpp + 2] / 255.0f
+    (double)image_data[x * bpp + y * width * bpp] / 255.0,
+    (double)image_data[x * bpp + y * width * bpp + 1] / 255.0,
+    (double)image_data[x * bpp + y * width * bpp + 2] / 255.0
   );
   if (_loadTextureType == LoadTextureType::Normal) {
     return val;
@@ -47,15 +49,15 @@ png::vec3 png::Texture::GetColorInt(int x, int y, const LoadTextureType _loadTex
   }
 }
 
-png::vec3 png::Texture::GetColor(double x, double y, const LoadTextureType _loadTextureType) {
-  return GetColorInt(GetIndexX(x), GetIndexY(y), _loadTextureType);
+png::vec3 png::Texture::GetColor(int x, int y, const LoadTextureType _loadTextureType) {
+  return GetColorData(GetIndexX(x), GetIndexY(y), _loadTextureType);
 }
 
 png::vec3 png::Texture::GetColorLerp(double x, double y, LoadTextureType _loadTextureType) {
-  png::vec3 val00 = GetColorInt(GetIndexX(x), GetIndexY(y), _loadTextureType);
-  png::vec3 val10 = GetColorInt(GetIndexX(x + 1), GetIndexY(y), _loadTextureType);
-  png::vec3 val01 = GetColorInt(GetIndexX(x), GetIndexY(y + 1), _loadTextureType);
-  png::vec3 val11 = GetColorInt(GetIndexX(x + 1), GetIndexY(y + 1), _loadTextureType);
+  png::vec3 val00 = GetColor(GetIndexX(x), GetIndexY(y), _loadTextureType);
+  png::vec3 val10 = GetColor(GetIndexX(x + 1), GetIndexY(y), _loadTextureType);
+  png::vec3 val01 = GetColor(GetIndexX(x), GetIndexY(y + 1), _loadTextureType);
+  png::vec3 val11 = GetColor(GetIndexX(x + 1), GetIndexY(y + 1), _loadTextureType);
 
   const float weight_x = x - (int)x;
   const float weight_y = y - (int)y;

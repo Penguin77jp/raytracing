@@ -261,10 +261,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\imgui\imgui_demo.cpp" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\imgui\imgui_draw.cpp" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\bluenoise.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\InitOpenGL.h" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\Singleton.h" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\aperture.h" />
+    <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\bluenoise.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\bluenoise.h" />
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.cpp" />
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.h" />

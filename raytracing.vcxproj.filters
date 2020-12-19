@@ -22,6 +22,9 @@
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\bluenoise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,7 +43,6 @@
     <ClCompile Include="C:\Users\Penguin\Documents\git\raytracing\src\texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bluenoise.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\Penguin\Documents\git\raytracing\src\InitOpenGL.h">

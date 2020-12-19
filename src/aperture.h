@@ -31,6 +31,82 @@ namespace png {
     }
   };
 
+  class AperturePolygonBlueSplit : public Aperture {
+  private:
+    BlueNoiseSampler blue;
+    std::vector<vec3> coner;
+    unsigned int polygon;
+    int GetIndex(int index, int size) {
+      if (index >= size) {
+        index -= size;
+      }
+      return index;
+    }
+    vec3 Square2triangle(vec3 _input) {
+      vec3 cal = _input;
+      //std::cout << "Input :" << std::string(_input) << std::endl;
+      if (_input.y > _input.x) {
+        cal.x *= 0.5f;
+        cal.y -= cal.x;
+      } else {
+        cal.y *= 0.5f;
+        cal.x -= cal.y;
+      }
+      return cal;
+    }
+  public:
+    AperturePolygonBlueSplit(unsigned int _polygon)
+      : blue(Texture("blue.png"))
+      , polygon(_polygon) {
+      for (int i = 0; i < polygon; ++i) {
+        double deg = 2.0 * std::numbers::pi * i / polygon;
+        vec3 cal = vec3(std::cos(deg), std::sin(deg), 0);
+        coner.push_back(cal);
+      }
+    }
+    vec3 Sample(Random& _rand) override {
+      double blue_x = _rand.next01();
+      const unsigned int polygonIndex = (unsigned int)(blue_x * polygon);
+      double x = blue_x * polygon - polygonIndex;
+      double y = _rand.next01();
+      double blue_y = y / polygon;
+      const vec3 offseted = blue.Sample(blue_x, blue_y);
+
+      vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
+      vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
+
+      vec3 triVec = Square2triangle(vec3(x, y, 0));
+
+      return vec_a * triVec.x + vec_b * triVec.y;
+    }
+    void CheckBluePoint(unsigned int _size, int _pointNum) {
+      Random _rand(0);
+      constexpr unsigned int bpp = 3;
+      std::vector<unsigned char> data(_size * _size * bpp, 255);
+      for (int i = 0; i < _pointNum; ++i) {
+        const double randX = _rand.next01();
+        const double blueX = randX * blue.GetTextureSize();
+        const unsigned int polygonIndex = (unsigned int)(randX * polygon);
+        const double randY = _rand.next01();
+        const double blueY = randY * blue.GetTextureSize() / polygon;
+        const vec3 offseted = blue.Sample(blueX - ((double)(int)(blueX*polygon)/polygon), blueY);
+
+        vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
+        vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
+
+        vec3 triVec = Square2triangle(vec3(blueX / polygon - (int)(blueX / polygon), offseted.y * polygon / blue.GetTextureSize(), 0));
+        vec3 point = vec_a * triVec.x + vec_b * triVec.y;
+        const int indexX = (point.x * 0.5 + 0.5) * (_size - 1);
+        const int indexY = (point.y * 0.5 + 0.5) * (_size - 1);
+        data[indexX * bpp + indexY * _size * bpp] = 0;
+        data[indexX * bpp + indexY * _size * bpp + 1] = 0;
+        data[indexX * bpp + indexY * _size * bpp + 2] = 0;
+      }
+      Texture hoge(data, _size, _size);
+      hoge.WriteImage("CheckBluePointSplit.png");
+    }
+  };
+
   class AperturePolygonRejection : public Aperture {
   private:
     int GetIndex(int index, int size) {
@@ -138,7 +214,7 @@ namespace png {
       constexpr unsigned int bpp = 3;
       std::vector<unsigned char> data(_size * _size * bpp, 255);
       for (int i = 0; i < _pointNum; ++i) {
-        const double randX = _rand.next01()/polygon;
+        const double randX = _rand.next01();
         const double blue_x = randX * blue.GetTextureSize();
         const unsigned int polygonIndex = (unsigned int)(randX * polygon);
         const double randY = _rand.next01();
@@ -152,6 +228,75 @@ namespace png {
         vec3 point = vec_a * triVec.x + vec_b * triVec.y;
         const int indexX = (point.x * 0.5 + 0.5) * (_size - 1);
         const int indexY = (point.y * 0.5 + 0.5) * (_size - 1);
+        data[indexX * bpp + indexY * _size * bpp] = 0;
+        data[indexX * bpp + indexY * _size * bpp + 1] = 0;
+        data[indexX * bpp + indexY * _size * bpp + 2] = 0;
+      }
+      Texture hoge(data, _size, _size);
+      hoge.WriteImage("CheckBluePoint.png");
+    }
+  };
+
+  class ApertureBoxBlue : public Aperture {
+  private:
+    BlueNoiseSampler blue;
+    int GetIndex(int index, int size) {
+      if (index >= size) {
+        index -= size;
+      }
+      return index;
+    }
+    vec3 Square2triangle(vec3 _input) {
+      vec3 cal = _input;
+      //std::cout << "Input :" << std::string(_input) << std::endl;
+      if (_input.y > _input.x) {
+        cal.x *= 0.5f;
+        cal.y -= cal.x;
+      } else {
+        cal.y *= 0.5f;
+        cal.x -= cal.y;
+      }
+      return cal;
+    }
+  public:
+    ApertureBoxBlue()
+      : blue(Texture("blue.png")) {
+    }
+    vec3 Sample(Random& _rand) override {
+      double blue_x = _rand.next01();
+      const unsigned int polygonIndex = (unsigned int)(blue_x);
+      double x = blue_x - polygonIndex;
+      double y = _rand.next01();
+      double blue_y = y;
+      const vec3 offseted = blue.Sample(blue_x, blue_y);
+
+      vec3 vec_a = vec3(1, 1, 0);
+      vec3 vec_b = vec3(1, 0, 0);
+
+      vec3 triVec = Square2triangle(vec3(x, y, 0));
+
+      return vec_a * triVec.x + vec_b * triVec.y;
+    }
+    void CheckBluePoint(unsigned int _size, int _pointNum, float _progress) {
+      Random _rand(0);
+      constexpr unsigned int bpp = 3;
+      std::vector<unsigned char> data(_size * _size * bpp, 255);
+      for (int i = 0; i < _pointNum; ++i) {
+        const double randX = _rand.next01() / 3;
+        const double blue_x = randX * blue.GetTextureSize();
+        const unsigned int polygonIndex = (unsigned int)(randX);
+        const double randY = _rand.next01();
+        const double blue_y = randY * blue.GetTextureSize();
+        const vec3 offseted = blue.Sample(blue_x, blue_y);
+
+        vec3 vec_a = vec3(1, 1, 0);
+        vec3 vec_b = vec3(1, 0, 0);
+
+        vec3 triVec = Square2triangle(vec3(blue_x - (int)(blue_x), offseted.y / blue.GetTextureSize(), 0));
+
+        vec3 point = vec_a * triVec.x + vec_b * triVec.y;
+        const int indexX = point.x * (_size - 1);
+        const int indexY = point.y * (_size - 1);
         data[indexX * bpp + indexY * _size * bpp] = 0;
         data[indexX * bpp + indexY * _size * bpp + 1] = 0;
         data[indexX * bpp + indexY * _size * bpp + 2] = 0;
@@ -224,7 +369,8 @@ namespace png {
     }
   public:
     AperturePolygonBlueTest(unsigned int _polygon)
-      : blue(Texture("LDR_RG01_23.png"))
+      : blue(Texture("blue.png"))
+      //: blue(Texture("LDR_RG01_23.png"))
       , polygon(_polygon) {
       for (int i = 0; i < polygon; ++i) {
         double deg = 2.0 * std::numbers::pi * i / polygon;
@@ -248,7 +394,7 @@ namespace png {
       return vec_a * triVec.x + vec_b * triVec.y;
     }
     void CheckBluePoint(int _texSize, int _pointNum) {
-      Texture tmp_blue = Texture("LDR_RG01_23.png");
+      Texture tmp_blue = Texture("blue.png");
       const unsigned int width = _texSize * tmp_blue.width;
       constexpr unsigned int bpp = 3;
       std::vector<unsigned char>data(bpp * width * width, 255);

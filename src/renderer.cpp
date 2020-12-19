@@ -78,7 +78,6 @@ png::Renderer::Renderer(const Renderer& _renderer)
   : Renderer(_renderer.cam, _renderer.renderTarget, _renderer.scene) {
 }
 
-
 png::Renderer::~Renderer() {
   //rtcReleaseScene(sceneHandle);
   //rtcReleaseDevice(deviceHandle);

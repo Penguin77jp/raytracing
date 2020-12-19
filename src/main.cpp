@@ -102,10 +102,11 @@ void Init_DOF(png::Scene& scene) {
 }
 
 int main(int, char**) {
-  png::AperturePolygonBlue hoge(3);
-  hoge.CheckBluePoint(500,1e7);
-  system("openPhoto.bat");
-  return 0;
+  png::AperturePolygonBlueSplit polygonSplit(5);
+  polygonSplit.CheckBluePoint(500,1e4);
+  png::AperturePolygonBlue polygon(5);
+  polygon.CheckBluePoint(500, 1e4);
+  //return 0;
   InitOpenGL_Loader();
   constexpr int size = 100;
 

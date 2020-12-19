@@ -427,7 +427,10 @@ void png::GUI::Update(const std::shared_ptr<RenderTarget> _renderTarget) {
           std::shared_ptr<RenderTarget> tmp_renderTarget(std::make_shared<RenderTarget>(image_res, image_res));
           tmp_renderer.SetRenderTarget(tmp_renderTarget);
           std::cout << "Rendering... [Resolustion : " << image_res << " , SuperSampling : " << superSampling << "]" << std::endl;
+          auto start = std::chrono::system_clock::now();
           tmp_renderer.Draw();
+          auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+          std::cout << duration.count() << " ms" << std::endl;
           tmp_renderTarget.get()->Update();
           std::string fileNameJPG = std::string(fileName) + std::string(".png");
           tmp_renderTarget.get()->WriteImage(fileNameJPG.c_str());

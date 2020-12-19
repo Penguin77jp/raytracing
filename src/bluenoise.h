@@ -7,9 +7,6 @@ namespace png {
     Texture blueNoise;
   public:
     BlueNoiseSampler(Texture _tex);
-    //
-    // 
-    // 
     /// <summary>
     /// ブルーノイズパターンを使って、オフセットした座標を取得
     /// </summary>
