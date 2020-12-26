@@ -92,7 +92,7 @@ void Init_NiceScene(png::Scene& scene) {
 
 void Init_DOF(png::Scene& scene) {
   std::vector<std::shared_ptr<png::SceneObject>> list;
-  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},1.0f,1.0f),1.0f }));
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},1.0f,1.0f),0.5f }));
   scene.SetSceneList(list);
 
   png::SceneLight sceneLight = png::SceneLight(
@@ -101,27 +101,46 @@ void Init_DOF(png::Scene& scene) {
   scene.SetSceneLight(sceneLight);
 }
 
+void Init_Test(png::Scene& scene) {
+  std::vector<std::shared_ptr<png::SceneObject>> list;
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},1.0f,1.0f),0.1f }));
+  scene.SetSceneList(list);
+
+  png::SceneLight sceneLight = png::SceneLight();
+  scene.SetSceneLight(sceneLight);
+}
+
 int main(int, char**) {
-  png::AperturePolygonBlueSplit polygonSplit(5);
-  polygonSplit.CheckBluePoint(500,1e4);
-  png::AperturePolygonBlue polygon(5);
-  polygon.CheckBluePoint(500, 1e4);
-  //return 0;
+  std::vector<int> group{ 1,2,3 };
+  for each (int hoge in group) {
+    
+  }
+  const double pointNum = 5e3;
+  //png::AperturePolygonBlueSplit polygonSplit(5);
+  //polygonSplit.CheckBluePoint(500,pointNum);
+  //png::AperturePolygonBlue polygon(5);
+  //polygon.CheckBluePoint(500, pointNum);
+  for (int poly = 1; poly < 20; ++poly) {
+    png::AperturePolygonBlueProgress hoge(poly);
+    for (float i = 0; i < 1.1f; i += 0.1f) {
+      //hoge.CheckBluePoint(1000, pointNum, i);
+    }
+  }
   InitOpenGL_Loader();
   constexpr int size = 100;
 
   //scene setting
   png::Scene scene;
   //Init_NiceScene(scene);
-  Init_DOF(scene);
+  Init_Test(scene);
   std::shared_ptr<png::RenderTarget> renderTarget(std::make_shared<png::RenderTarget>(size, size));
   png::ThinLens cam(
     png::vec3{ -7.1,+0.8,+1.7 },
     png::vec3{ +0.0,+0.0,+0.0 },
     0,
     0.4,
-    new png::AperturePolygonBlue(6),
-    0.1f,
+    new png::AperturePolygonBlueSplit(6),
+    0.5f,
     1.9f
   );
   png::Renderer renderer(&cam, renderTarget, scene);

@@ -41,5 +41,7 @@ namespace png {
 
     //Get
     float GetIntensity() { return intensity; }
+    //Set
+    void SetIntensity(const float _intensity) { intensity = _intensity; }
   };
 }

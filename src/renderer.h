@@ -97,6 +97,9 @@ namespace png {
       }
     }
     // Scene
-    void SetSceneLightIntensity(float _li) {};
+    void SetSceneLightIntensity(float _li) {
+      scene.GetSceneLight().SetIntensity(_li);
+      renderTarget.get()->Init();
+    };
   };
 }

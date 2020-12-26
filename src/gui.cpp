@@ -609,8 +609,17 @@ void png::GUI::Update(const std::shared_ptr<RenderTarget> _renderTarget) {
   //  }
   //}
 
+//open gl texture
   {
-    ImGui::Begin("OpenGL Texture Text");
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize, ImGuiCond_Once);
+    bool open_ptr = true;
+    ImGuiWindowFlags window_flags = 0;
+    window_flags |= ImGuiWindowFlags_NoTitleBar;
+    window_flags |= ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoResize;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+    ImGui::Begin("Background", &open_ptr, window_flags);
     //ImGui::Text("size = %d x %d", renderer.GetRenderResolution(), renderer.GetRenderResolution());
     ImGui::Image((void*)(intptr_t)(*(_renderTarget.get()->GetImageID_ptr())), ImVec2(window_size, window_size));
     ImGui::End();
