@@ -5,6 +5,7 @@
 #include "random.h"
 #include "aperture.h"
 
+#include <iostream>
 #include <memory>
 
 namespace png {
