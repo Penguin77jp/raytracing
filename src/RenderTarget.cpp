@@ -1,4 +1,5 @@
 #include "renderTarget.h"
+
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -31,6 +32,7 @@ using namespace gl;
 #include <stb_image_write.h>
 #include <cmath>
 #include <iostream>
+#include <filesystem>
 
 png::RenderTarget::RenderTarget(const uint16_t w, const uint16_t h)
   : width(w), height(h),
@@ -80,7 +82,7 @@ void png::RenderTarget::Update() {
     }
     //image_data[i] = (unsigned char)(255 * val);
     image_data[i] = (unsigned char)(255 * std::pow(val, 1.0f / 2.2f));
-}
+  }
 
   // Create a OpenGL texture identifier
   GLuint image_texture;
@@ -106,7 +108,7 @@ void png::RenderTarget::Init() {
   sampleCounter = 0;
 }
 
-void png::RenderTarget::WriteImage(const char* fileName) {
+void png::RenderTarget::WriteImage(std::string fileName) {
   std::vector<unsigned char> tmp(4 * width * height, 0);
   for (int i = 0; i < width * height * 4; ++i) {
     float val = std::powf(image_dataF[i] / sampleCounter, 1.0 / 2.2f);
@@ -115,6 +117,14 @@ void png::RenderTarget::WriteImage(const char* fileName) {
     }
     tmp[i] = (unsigned char)(255 * val);
   }
-  stbi_write_png(fileName, width, height, 4, &tmp[0], 0);
-  std::cout << "saved " << fileName << std::endl;
+  //check directory
+  using namespace std::filesystem;
+  std::string imageDirString("./Image");
+  directory_entry imageDir(imageDirString);
+  if (!imageDir.exists() || !imageDir.is_directory()) {
+    create_directory(imageDir.path());
+  }
+  std::string path = imageDirString + std::string("/") + fileName + std::string(".png");
+  stbi_write_png(path.c_str(), width, height, 4, &tmp[0], 0);
+  std::cout << "saved " << path << std::endl;
 }

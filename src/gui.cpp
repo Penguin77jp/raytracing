@@ -432,34 +432,39 @@ void png::GUI::Update(const std::shared_ptr<RenderTarget> _renderTarget) {
           auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
           std::cout << duration.count() << " ms" << std::endl;
           tmp_renderTarget.get()->Update();
-          std::string fileNameJPG = std::string(fileName) + std::string(".png");
+          std::string fileNameJPG = std::string(fileName);
           tmp_renderTarget.get()->WriteImage(fileNameJPG.c_str());
         }
 
         //debug for aperture type
         {
           if (ImGui::Button("Save All Aperture Type")) {
-            for (int i = 0; i < 3; ++i) {
-              Renderer tmp_renderer(renderer);
-              tmp_renderer.SetSuperSampling(superSampling);
-              std::shared_ptr<RenderTarget> tmp_renderTarget(std::make_shared<RenderTarget>(image_res, image_res));
-              tmp_renderer.SetRenderTarget(tmp_renderTarget);
-              std::string fileName;
-              if (i == 0) {
-                fileName = "disk";
-                tmp_renderer.SetCameraApertureType(typeid(ApertureDisk*));
-              } else if (i == 1) {
-                fileName = "polygon";
-                tmp_renderer.SetCameraApertureType(typeid(AperturePolygonRejection*));
-              } else if (i == 2) {
-                fileName = "rectangle";
-                tmp_renderer.SetCameraApertureType(typeid(ApertureRectangle*));
+            for (int ss = 1; ss <= 5; ss++) {
+              for (int i = 0; i <= 2; ++i) {
+                Renderer tmp_renderer(renderer);
+                tmp_renderer.SetSuperSampling(ss);
+                std::shared_ptr<RenderTarget> tmp_renderTarget(std::make_shared<RenderTarget>(image_res, image_res));
+                tmp_renderer.SetRenderTarget(tmp_renderTarget);
+                std::string fileName;
+
+                std::string ssPath = std::string(" superSample") + std::to_string(ss);
+                if (i == 0) {
+                  fileName = "polygonBlue" + ssPath;
+                  tmp_renderer.SetCameraApertureType(typeid(AperturePolygonBlue*));
+                } else if (i == 1) {
+                  fileName = "polygonBlueRejection" + ssPath;
+                  tmp_renderer.SetCameraApertureType(typeid(AperturePolygonRejection*));
+                } else if (i == 2) {
+                  fileName = "polygonBlueSplit" + ssPath;
+                  tmp_renderer.SetCameraApertureType(typeid(AperturePolygonBlueSplit*));
+                }
+
+                std::cout << "Rendering... [Resolustion : " << image_res << " , SuperSampling : " << ss << "]" << std::endl;
+                tmp_renderer.Draw();
+                tmp_renderTarget.get()->Update();
+                std::string fileNameJPG = std::string(fileName);
+                tmp_renderTarget.get()->WriteImage(fileNameJPG);
               }
-              std::cout << "Rendering... [Resolustion : " << image_res << " , SuperSampling : " << superSampling << "]" << std::endl;
-              tmp_renderer.Draw();
-              tmp_renderTarget.get()->Update();
-              std::string fileNameJPG = std::string(fileName) + std::string(".png");
-              tmp_renderTarget.get()->WriteImage(fileNameJPG.c_str());
             }
           }
         }

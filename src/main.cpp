@@ -103,7 +103,7 @@ void Init_DOF(png::Scene& scene) {
 
 void Init_Test(png::Scene& scene) {
   std::vector<std::shared_ptr<png::SceneObject>> list;
-  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},1.0f,1.0f),0.1f }));
+  list.emplace_back(std::make_shared<png::Box>(png::Box{ png::vec3{+0.0f,+0.0f,+0.0f},new png::MaterialReflect(png::vec3{1.0f,0.1f,0.1f},1.0f,1.0f),0.2f }));
   scene.SetSceneList(list);
 
   png::SceneLight sceneLight = png::SceneLight();
@@ -111,21 +111,15 @@ void Init_Test(png::Scene& scene) {
 }
 
 int main(int, char**) {
-  std::vector<int> group{ 1,2,3 };
-  for each (int hoge in group) {
-    
+  png::vec3 hoge;
+  std::vector<png::vec3> hogeV;
+//#pragma omp parallel for
+  for (int i = 19; i < 25; i += 1) {
+    png::AperturePolygonBlue hoge(i);
+    hoge.CheckTexture(10,1000);
   }
-  const double pointNum = 5e3;
-  //png::AperturePolygonBlueSplit polygonSplit(5);
-  //polygonSplit.CheckBluePoint(500,pointNum);
-  //png::AperturePolygonBlue polygon(5);
-  //polygon.CheckBluePoint(500, pointNum);
-  for (int poly = 1; poly < 20; ++poly) {
-    png::AperturePolygonBlueProgress hoge(poly);
-    for (float i = 0; i < 1.1f; i += 0.1f) {
-      //hoge.CheckBluePoint(1000, pointNum, i);
-    }
-  }
+  return 0;
+
   InitOpenGL_Loader();
   constexpr int size = 100;
 
@@ -139,8 +133,9 @@ int main(int, char**) {
     png::vec3{ +0.0,+0.0,+0.0 },
     0,
     0.4,
-    new png::AperturePolygonBlueSplit(6),
-    0.5f,
+    new png::AperturePolygonBlue(6),
+    //new png::AperturePolygonBlueSplit(6),
+    0.9f,
     1.9f
   );
   png::Renderer renderer(&cam, renderTarget, scene);

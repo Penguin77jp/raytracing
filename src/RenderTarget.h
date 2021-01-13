@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 namespace png {
   class RenderTarget {
@@ -16,7 +17,7 @@ namespace png {
     RenderTarget(const RenderTarget& _renderTarget);
     void Update();
     void Init();
-    void WriteImage(const char* fileName);
+    void WriteImage(std::string fileName);
 
     //Get
     uint16_t GetWidth() const { return width; }

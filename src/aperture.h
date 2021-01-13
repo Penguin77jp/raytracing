@@ -6,6 +6,7 @@
 #include <cmath>
 #include <numbers>
 #include <iostream>
+#include <sstream>
 
 namespace png {
   class Aperture {
@@ -64,6 +65,7 @@ namespace png {
         coner.push_back(cal);
       }
     }
+
     vec3 Sample(Random& _rand) override {
       const double randX = _rand.next01();
       const double blueX = randX * blue.GetTextureSize();
@@ -79,6 +81,7 @@ namespace png {
 
       return vec_a * triVec.x + vec_b * triVec.y;
     }
+
     void CheckBluePoint(unsigned int _size, int _pointNum) {
       Random _rand(0);
       constexpr unsigned int bpp = 3;
@@ -109,6 +112,7 @@ namespace png {
 
   class AperturePolygonRejection : public Aperture {
   private:
+    unsigned int polygon;
     int GetIndex(int index, int size) {
       if (index >= size) {
         index -= size;
@@ -131,8 +135,10 @@ namespace png {
     }
 
   public:
+    AperturePolygonRejection(unsigned int _polygon) : polygon(_polygon) {
+    }
+
     vec3 Sample(Random& _rand) override {
-      constexpr int polygon = 8;
       std::vector<vec3> coner;
       for (int i = 0; i < polygon; ++i) {
         double deg = 2.0 * std::numbers::pi * i / polygon;
@@ -194,27 +200,29 @@ namespace png {
         coner.push_back(cal);
       }
     }
+
     vec3 Sample(Random& _rand) override {
-      double blue_x = _rand.next01();
-      const unsigned int polygonIndex = (unsigned int)(blue_x * polygon);
-      double x = blue_x * polygon - polygonIndex;
-      double y = _rand.next01();
-      double blue_y = y / polygon;
+      const double randX = _rand.next01();
+      const double blue_x = randX * blue.GetTextureSize();
+      const unsigned int polygonIndex = (unsigned int)(randX * polygon);
+      const double randY = _rand.next01();
+      const double blue_y = randY * blue.GetTextureSize() / polygon;
       const vec3 offseted = blue.Sample(blue_x, blue_y);
 
       vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
       vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
 
-      vec3 triVec = Square2triangle(vec3(x, y, 0));
+      vec3 triVec = Square2triangle(vec3(blue_x / polygon - (int)(blue_x / polygon), offseted.y * polygon / blue.GetTextureSize(), 0));
 
       return vec_a * triVec.x + vec_b * triVec.y;
     }
+
     void CheckBluePoint(unsigned int _size, int _pointNum) {
       Random _rand(0);
       constexpr unsigned int bpp = 3;
       std::vector<unsigned char> data(_size * _size * bpp, 255);
       for (int i = 0; i < _pointNum; ++i) {
-        const double randX = _rand.next01() / 3;
+        const double randX = _rand.next01();
         const double blue_x = randX * blue.GetTextureSize();
         const unsigned int polygonIndex = (unsigned int)(randX * polygon);
         const double randY = _rand.next01();
@@ -234,6 +242,48 @@ namespace png {
       }
       Texture hoge(data, _size, _size);
       hoge.WriteImage("CheckBluePoint.png");
+    }
+
+    void CheckTexture(int cell, unsigned int _size) {
+      constexpr unsigned int bpp = 3;
+      std::vector<unsigned char> data(_size * _size * bpp, 255);
+      const double pointN = 1e4;
+      for (int y = 0; y < pointN; ++y) {
+        for (int x = 0; x < pointN; ++x) {
+          const long randX = 1.0 * x / pointN;
+          //const double randX = 1.0 * x / pointN;
+          const unsigned int polygonIndex = (unsigned int)(randX * polygon);
+          const double randY = 1.0 * y / pointN;
+          //const vec3 offseted = blue.Sample(blueX - ((double)(int)(blueX * polygon) / polygon), blueY);
+
+          vec3& vec_a = coner[GetIndex(polygonIndex, coner.size())];
+          vec3& vec_b = coner[GetIndex(polygonIndex + 1, coner.size())];
+
+          double cellX = randX * polygon - (int)(randX * polygon);
+          vec3 triVec = Square2triangle(vec3(cellX, randY, 0));
+          vec3 point = vec_a * triVec.x + vec_b * triVec.y;
+          const int indexX = (point.x * 0.5 + 0.5) * (_size - 1);
+          const int indexY = (point.y * 0.5 + 0.5) * (_size - 1);
+
+          bool black = ((int)(cellX * cell) + (int)(randY * cell)) % 2 == 0;
+
+          if (black) {
+            constexpr int cal = 0;
+            data[indexX * bpp + indexY * _size * bpp] = cal;
+            data[indexX * bpp + indexY * _size * bpp + 1] = cal;
+            data[indexX * bpp + indexY * _size * bpp + 2] = cal;
+          } else {
+            constexpr int cal = 127;
+            data[indexX * bpp + indexY * _size * bpp] = cal;
+            data[indexX * bpp + indexY * _size * bpp + 1] = cal;
+            data[indexX * bpp + indexY * _size * bpp + 2] = cal;
+          }
+        }
+      }
+      Texture hoge(data, _size, _size);
+      std::stringstream ss;
+      ss << "./Image/CheckTexture" << polygon << ".png";
+      hoge.WriteImage(ss.str().c_str());
     }
   };
 
@@ -313,7 +363,7 @@ namespace png {
         data[indexX * bpp + indexY * _size * bpp + 2] = 0;
       }
       Texture hoge(data, _size, _size);
-      std::string fileName = std::string("CheckBluePoint") + std::to_string(polygon) +std::string(" , ")+ std::to_string(_progress) + std::string(".png");
+      std::string fileName = std::string("CheckBluePoint") + std::to_string(polygon) + std::string(" , ") + std::to_string(_progress) + std::string(".png");
       hoge.WriteImage(fileName.c_str());
     }
   };

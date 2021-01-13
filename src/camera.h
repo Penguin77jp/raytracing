@@ -76,15 +76,22 @@ namespace png {
       forcalDis = _dis;
     }
     void SetApertureType(const type_info& _type) {
+      constexpr int polygon = 6;
       if (_type == typeid(ApertureDisk*)) {
         delete aperture;
         aperture = new ApertureDisk();
       } else if (_type == typeid(AperturePolygonRejection*)) {
         delete aperture;
-        aperture = new AperturePolygonRejection();
+        aperture = new AperturePolygonRejection(polygon);
       } else if (_type == typeid(ApertureRectangle*)) {
         delete aperture;
         aperture = new ApertureRectangle();
+      } else if (_type == typeid(AperturePolygonBlue*)) {
+        delete aperture;
+        aperture = new AperturePolygonBlue(polygon);
+      } else if (_type == typeid(AperturePolygonBlueSplit*)) {
+        delete aperture;
+        aperture = new AperturePolygonBlueSplit(polygon);
       } else {
         std::cerr << "Not Found class " << typeid(aperture).name() << std::endl;
         exit(1);

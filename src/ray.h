@@ -4,6 +4,7 @@
 #include <cmath>
 
 namespace png {
+  //template <typename T = double>
   class vec3 {
   public:
     double x, y, z;
@@ -63,6 +64,7 @@ namespace png {
     }
   };
 
+  //template <typename T = double>
   class Ray {
   public:
     vec3 org, dir;
