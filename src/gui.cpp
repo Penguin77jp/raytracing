@@ -288,10 +288,10 @@ void png::GUI::Update(const std::shared_ptr<RenderTarget> _renderTarget) {
     //camera origin
     {
       // Axis-aligned param
-      png::vec3 org = renderer.GetCameraOrigin();
+      png::vec3<> org = renderer.GetCameraOrigin();
       float vec3[3] = { org.x, org.y, org.z };
       if (ImGui::InputFloat3("Camera Origin", vec3)) {
-        png::vec3 _org;
+        png::vec3<> _org;
         _org.x = vec3[0];
         _org.y = vec3[1];
         _org.z = vec3[2];
@@ -324,7 +324,7 @@ void png::GUI::Update(const std::shared_ptr<RenderTarget> _renderTarget) {
         if (-0.001f <= thetaPI && phiPI <= 0.001f) {
           phiPI = 0.001f;
         }
-        png::vec3 _org = png::vec3(
+        auto _org = png::vec3<>(
           std::sinf(thetaPI) * std::sinf(phiPI),
           std::cosf(thetaPI),
           std::sinf(thetaPI) * std::cosf(phiPI)

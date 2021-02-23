@@ -30,7 +30,7 @@ png::Renderer::Renderer(Camera* _cam, const std::shared_ptr<RenderTarget> _rende
   sceneHandle = rtcNewScene(deviceHandle);
   RTCGeometry geometryHandle = rtcNewGeometry(deviceHandle, RTC_GEOMETRY_TYPE_TRIANGLE);
 
-  std::vector<vec3> vec_geometoryList;
+  std::vector<vec3<>> vec_geometoryList;
   std::vector<std::vector<unsigned int>> vec_polygonIndex;
   scene.GetVertex(vec_geometoryList, vec_polygonIndex);
 
@@ -91,7 +91,7 @@ png::Renderer& png::Renderer::operator=(const Renderer& other) {
   return *this;
 }
 
-png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth, Random& rnd) {
+png::vec3<> png::Renderer::PathTracing(RTCRayHit& rayhit, int depth, Random& rnd) {
   constexpr int kDepth = 5; // ロシアンルーレットで打ち切らない最大深度
   constexpr int kDepthLimit = 64;
 
@@ -101,20 +101,20 @@ png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth, Random& rnd) 
   int hogehoge = 0;
   if (rayhit.hit.geomID == RTC_INVALID_GEOMETRY_ID) {
     hogehoge++;
-    return scene.GetSceneLight().GetColor(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y ,rayhit.ray.dir_z });
+    return scene.GetSceneLight().GetColor(vec3<>{ rayhit.ray.dir_x,rayhit.ray.dir_y ,rayhit.ray.dir_z });
   }
 
   //next
   RTCRayHit newRayhit;
-  png::vec3 hitPoint = vec3{ rayhit.ray.org_x,rayhit.ray.org_y,rayhit.ray.org_z } + vec3::Normalize(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y, rayhit.ray.dir_z }) * rayhit.ray.tfar;
-  vec3 normal_n = vec3::Normalize(vec3{ rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z });
-  vec3 objColor = scene.GetMaterial(rayhit.hit.primID)->GetColor();
+  auto hitPoint = vec3<>{ rayhit.ray.org_x,rayhit.ray.org_y,rayhit.ray.org_z } + vec3<>::Normalize(vec3<>{ rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z })* rayhit.ray.tfar;
+  auto normal_n = vec3<>::Normalize(vec3<>{ rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z });
+  auto objColor = scene.GetMaterial(rayhit.hit.primID)->GetColor();
   newRayhit.ray.org_x = hitPoint.x;
   newRayhit.ray.org_y = hitPoint.y;
   newRayhit.ray.org_z = hitPoint.z;
 
-  vec3 dir = scene.GetMaterial(rayhit.hit.primID)->GetDirection(
-    vec3::Normalize(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y, rayhit.ray.dir_z }),
+  auto dir = scene.GetMaterial(rayhit.hit.primID)->GetDirection(
+    vec3<>::Normalize(vec3<>{ rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z }),
     normal_n,
     rnd
   );
@@ -143,7 +143,7 @@ png::vec3 png::Renderer::PathTracing(RTCRayHit& rayhit, int depth, Random& rnd) 
   return scene.GetMaterial(rayhit.hit.primID)->GetEmission() + weight * incoming_radiance;
 }
 
-png::vec3 png::Renderer::PrimalRayTracing(RTCRayHit& rayhit) {
+png::vec3<> png::Renderer::PrimalRayTracing(RTCRayHit& rayhit) {
   rtcIntersect1(sceneHandle, &context, &rayhit);
 
   //no hit
@@ -152,20 +152,20 @@ png::vec3 png::Renderer::PrimalRayTracing(RTCRayHit& rayhit) {
   }
 
   return scene.GetMaterial(rayhit.hit.primID)->GetColor() *
-    std::clamp(vec3::Dot(vec3(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z),
-                         vec3(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z))
+    std::clamp(vec3<>::Dot(vec3<>(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z),
+                           vec3<>(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z))
                , 0.0, 1.0);
 }
 
-png::vec3 png::Renderer::LambertDiffuse(RTCRayHit& rayhit) {
+png::vec3<> png::Renderer::LambertDiffuse(RTCRayHit& rayhit) {
   rtcIntersect1(sceneHandle, &context, &rayhit);
 
   //no hit
   if (rayhit.hit.geomID == RTC_INVALID_GEOMETRY_ID) {
-    return scene.GetSceneLight().GetColor(vec3{ rayhit.ray.dir_x,rayhit.ray.dir_y ,rayhit.ray.dir_z });
+    return scene.GetSceneLight().GetColor(vec3<>{ rayhit.ray.dir_x,rayhit.ray.dir_y ,rayhit.ray.dir_z });
   }
 
-  return scene.GetMaterial(rayhit.hit.primID)->GetColor() * std::abs(vec3::Dot(vec3::Normalize(vec3(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z)), vec3::Normalize(vec3(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z))));
+  return scene.GetMaterial(rayhit.hit.primID)->GetColor() * std::abs(vec3<>::Dot(vec3<>::Normalize(vec3<>(rayhit.ray.dir_x, rayhit.ray.dir_y, rayhit.ray.dir_z)), vec3<>::Normalize(vec3<>(rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z))));
 }
 
 void png::Renderer::Draw() {

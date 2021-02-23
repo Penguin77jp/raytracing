@@ -13,7 +13,7 @@ namespace png {
     /// <param name="x">0 ~ [Width]</param>
     /// <param name="y">0 ~ [Height]</param>
     /// <returns>0 ~  [TextureSize]</returns>
-    vec3 Sample(double x, double y);
+    vec3<> Sample(double x, double y);
 
     // Get
     size_t GetTextureSize() const { return blueNoise.width; }

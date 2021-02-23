@@ -10,15 +10,15 @@ namespace png {
   class SceneLight {
   private:
     float intensity;
-    vec3* ambientLight;
+    vec3<>* ambientLight;
     Texture* enviromentLight;
 
   public:
     SceneLight(float _inten = 1.0f) : intensity(_inten), ambientLight(nullptr), enviromentLight(nullptr) {}
-    SceneLight(vec3* _col, float _inten = 1.0f) : intensity(_inten), ambientLight(_col), enviromentLight(nullptr) {}
+    SceneLight(vec3<>* _col, float _inten = 1.0f) : intensity(_inten), ambientLight(_col), enviromentLight(nullptr) {}
     SceneLight(Texture* _tex, float _inten = 1.0f) : intensity(_inten), ambientLight(nullptr), enviromentLight(_tex) {}
 
-    vec3 GetColor(vec3 dir) {
+    vec3<> GetColor(vec3<> dir) {
       if (ambientLight != nullptr) {
         return *ambientLight * intensity;
       } else if (enviromentLight != nullptr) {

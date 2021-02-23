@@ -33,7 +33,7 @@ int png::Texture::GetIndexY(int y) {
   return y;
 }
 
-png::vec3 png::Texture::GetColorData(int x, int y, const LoadTextureType _loadTextureType) {
+png::vec3<> png::Texture::GetColorData(int x, int y, const LoadTextureType _loadTextureType) {
   png::vec3 val = png::vec3(
     (double)image_data[x * bpp + y * width * bpp] / 255.0,
     (double)image_data[x * bpp + y * width * bpp + 1] / 255.0,
@@ -43,17 +43,17 @@ png::vec3 png::Texture::GetColorData(int x, int y, const LoadTextureType _loadTe
     return val;
   } else if (_loadTextureType == LoadTextureType::GammmaCorrection) {
     const float l_pow = 2.2f;
-    return png::vec3(std::powf(val.x, l_pow), std::powf(val.y, l_pow), std::powf(val.z, l_pow));
+    return png::vec3<>(std::powf(val.x, l_pow), std::powf(val.y, l_pow), std::powf(val.z, l_pow));
   } else {
-    return png::vec3(-1, -1, -1);
+    return png::vec3<>(-1, -1, -1);
   }
 }
 
-png::vec3 png::Texture::GetColor(int x, int y, const LoadTextureType _loadTextureType) {
+png::vec3<> png::Texture::GetColor(int x, int y, const LoadTextureType _loadTextureType) {
   return GetColorData(GetIndexX(x), GetIndexY(y), _loadTextureType);
 }
 
-png::vec3 png::Texture::GetColorLerp(double x, double y, LoadTextureType _loadTextureType) {
+png::vec3<> png::Texture::GetColorLerp(double x, double y, LoadTextureType _loadTextureType) {
   png::vec3 val00 = GetColor(GetIndexX(x), GetIndexY(y), _loadTextureType);
   png::vec3 val10 = GetColor(GetIndexX(x + 1), GetIndexY(y), _loadTextureType);
   png::vec3 val01 = GetColor(GetIndexX(x), GetIndexY(y + 1), _loadTextureType);

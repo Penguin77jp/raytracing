@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ray.h"
+#include "Ray.h"
 #include "renderTarget.h"
 #include "random.h"
 #include "aperture.h"
@@ -12,30 +12,30 @@ namespace png {
   class Camera {
   protected:
     //RenderTarget& renderTarget;
-    vec3 origin;
-    vec3 target;
+    vec3<> origin;
+    vec3<> target;
     int type;
-    vec3 direction;
-    vec3 upVec;
-    vec3 l_camX;
-    vec3 l_camY;
-    vec3 l_camZ;
+    vec3<> direction;
+    vec3<> upVec;
+    vec3<> l_camX;
+    vec3<> l_camY;
+    vec3<> l_camZ;
     float fov;
   public:
-    Camera(vec3 _org, vec3 _tar, int _type, float _fov = 1.0f);
+    Camera(vec3<> _org, vec3<> _tar, int _type, float _fov = 1.0f);
     //Camera(const Camera& _cam) {}
 
     void Init();
-    Ray virtual GenerateRay(const std::shared_ptr<RenderTarget> _renderTarget, const int x, const int y, png::Random& rnd) const = 0;
+    Ray<> virtual GenerateRay(const std::shared_ptr<RenderTarget> _renderTarget, const int x, const int y, png::Random& rnd) const = 0;
 
     //Get
     float GetFov() const { return fov; }
     int GetType() const { return type; }
-    vec3 GetOrigin() const { return origin; }
-    vec3 GetTarget() const { return target; }
+    vec3<> GetOrigin() const { return origin; }
+    vec3<> GetTarget() const { return target; }
 
     //Set
-    void SetOrigin(const vec3 _org) {
+    void SetOrigin(const vec3<> _org) {
       origin = _org;
       Init();
     }
@@ -47,8 +47,8 @@ namespace png {
 
   class PinHole : public Camera {
   public:
-    PinHole(vec3 _org, vec3 _tar, int _type, float _fov = 1.0f);
-    Ray GenerateRay(
+    PinHole(vec3<> _org, vec3<> _tar, int _type, float _fov = 1.0f);
+    Ray<> GenerateRay(
       const std::shared_ptr<RenderTarget> _renderTarget,
       const int x, const int y,
       png::Random& rnd
@@ -61,8 +61,8 @@ namespace png {
     float forcalDis;
     Aperture* aperture;
   public:
-    ThinLens(vec3 _org, vec3 _tar, int _type, float _fov, Aperture* _aperture, const float _apertureDiameter = 0.0f, const float _forcalDis = 1.0f);
-    Ray GenerateRay(
+    ThinLens(vec3<> _org, vec3<> _tar, int _type, float _fov, Aperture* _aperture, const float _apertureDiameter = 0.0f, const float _forcalDis = 1.0f);
+    Ray<> GenerateRay(
       const std::shared_ptr<RenderTarget> _renderTarget,
       const int x, const int y,
       png::Random& rnd

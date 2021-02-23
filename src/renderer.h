@@ -21,9 +21,9 @@ namespace png {
     RTCScene sceneHandle;
     RTCDevice deviceHandle;
     RTCIntersectContext context;
-    vec3 PathTracing(RTCRayHit& rayhit, int depth, Random& rnd);
-    vec3 PrimalRayTracing(RTCRayHit& rayhit);
-    vec3 LambertDiffuse(RTCRayHit& rayhit);
+    vec3<> PathTracing(RTCRayHit& rayhit, int depth, Random& rnd);
+    vec3<> PrimalRayTracing(RTCRayHit& rayhit);
+    vec3<> LambertDiffuse(RTCRayHit& rayhit);
 
   public:
     Renderer(Camera* _cam, const std::shared_ptr<RenderTarget> _renderTarget, Scene& _scene);
@@ -38,8 +38,8 @@ namespace png {
     //int GetRenderResolution() { return renderTarget.GetWidth(); };
     //int GetSuperSampling() { return renderTarget.GetSuperSampling(); };
     // Camera
-    vec3 GetCameraOrigin() { return cam->GetOrigin(); };
-    vec3 GetCameraTarget() { return cam->GetTarget(); };
+    vec3<> GetCameraOrigin() { return cam->GetOrigin(); };
+    vec3<> GetCameraTarget() { return cam->GetTarget(); };
     float GetCameraFov() { return cam->GetFov(); };
     const type_info& GetCameraLensType() const {
       if (static_cast<ThinLens*>(cam) != nullptr) {
@@ -68,11 +68,11 @@ namespace png {
     void SetSuperSampling(int _ss) { superSampling = _ss; }
     // Camera
     void SetCameraType(int _type) {};
-    void SetCameraOrigin(const vec3 _org) {
+    void SetCameraOrigin(const vec3<> _org) {
       cam->SetOrigin(_org);
       renderTarget.get()->Init();
     };
-    void SetCameraTarget(vec3 _tar) {};
+    void SetCameraTarget(vec3<> _tar) {};
     void SetCameraFov(float _fov) {
       cam->SetFov(_fov);
       renderTarget.get()->Init();
